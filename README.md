@@ -1,6 +1,6 @@
 # Gestor Inteligente de Tickets para SOC (CiberCase)
 
-![Dashboard Screenshot](https://i.imgur.com/your-screenshot.png) <!-- Reemplazar con una captura de pantalla real -->
+![Dashboard Screenshot](https://imgur.com/a/7QtCI1a) <!-- Reemplazar con una captura de pantalla real -->
 
 Este proyecto es una solución de software avanzada, diseñada para optimizar y automatizar la gestión de incidentes de seguridad en un Centro de Operaciones de Seguridad (SOC). Centraliza, enriquece y gestiona de forma inteligente las alertas de seguridad, transformándolas en tickets accionables y contextualizados a través de una interfaz moderna y en tiempo real.
 
@@ -12,7 +12,7 @@ Este proyecto es una solución de software avanzada, diseñada para optimizar y 
 *   **Gestión Avanzada de Tickets:** Ciclo de vida completo de tickets, edición en línea, asignación y trazabilidad.
 *   **Arquitectura Moderna:** Construido con una pila de tecnologías moderna y escalable.
 
-## 🛠️ Pila Tecnológica
+## 🛠️ Pilar
 
 *   **Backend:** **Python 3.10** con **FastAPI**
 *   **Frontend:** **React.js** (Create React App)
@@ -90,4 +90,4 @@ docker-compose down
 
 ## 🤝 Contribuciones
 
-Las contribuciones son bienvenidas. Por favor, siga la `guia_desarrollador.md` para entender el flujo de trabajo de desarrollo y las convenciones del proyecto.
+Las contribuciones son bienvenidas.
