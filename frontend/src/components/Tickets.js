@@ -165,15 +165,13 @@ const Tickets = () => {
     }, [fetchInitialData]);
 
     useEffect(() => {
-        if (!isLoading) {
-            if (ticketId && ticketId !== 'undefined') {
-                fetchSingleTicket(ticketId);
-                fetchTicketComments(ticketId);
-            } else {
-                fetchFilteredTickets();
-            }
+        if (ticketId && ticketId !== 'undefined') {
+            fetchSingleTicket(ticketId);
+            fetchTicketComments(ticketId);
+        } else {
+            fetchFilteredTickets();
         }
-    }, [ticketId, fetchSingleTicket, fetchTicketComments, fetchFilteredTickets, isLoading]);
+    }, [ticketId, fetchSingleTicket, fetchTicketComments, fetchFilteredTickets]);
     
     useEffect(() => {
         if (latestMessage) {
@@ -288,7 +286,61 @@ const Tickets = () => {
                     <button onClick={() => navigate('/tickets')} className="btn btn-secondary">Volver al Gestor de Tickets</button>
                 </div>
                 <div className="card shadow-sm mb-4"><div className="card-header">Información del Ticket</div><div className="card-body"><div className="row mb-2"><div className="col-md-6"><strong>Título:</strong> {singleTicket.resumen}</div><div className="col-md-6"><strong>Estado:</strong> <span className={`badge bg-${singleTicket.estado === 'Nuevo' ? 'primary' : singleTicket.estado === 'En Progreso' ? 'warning' : singleTicket.estado === 'Resuelto' ? 'success' : 'secondary'}`}>{singleTicket.estado}</span></div></div><div className="row mb-2"><div className="col-md-6"><strong>Severidad:</strong> <span className={`badge bg-${singleTicket.severidad === 'Baja' ? 'info' : singleTicket.severidad === 'Media' ? 'warning' : singleTicket.severidad === 'Alta' ? 'danger' : 'dark'}`}>{singleTicket.severidad}</span></div><div className="col-md-6"><strong>Categoría:</strong> {singleTicket.categoria || 'N/A'}</div></div><div className="row mb-2"><div className="col-md-6"><strong>Reportado por:</strong> {reportedByUser?.nombre || 'N/A'}</div><div className="col-md-6"><strong>Asignado a:</strong> {assignedUser?.nombre || 'Sin asignar'}</div></div><div className="row mb-2"><div className="col-md-6"><strong>Creado en:</strong> {formatDateTime(singleTicket.creado_en)}</div><div className="col-md-6"><strong>Última actualización:</strong> {formatDateTime(singleTicket.actualizado_en)}</div></div><div className="row mb-2"><div className="col-12" style={{ whiteSpace: 'pre-wrap' }}><strong>Descripción:</strong> {singleTicket.descripcion || 'N/A'}</div></div></div></div>
-                <div className="card shadow-sm mb-4"><div className="card-header">Sección de Resolución</div><div className="card-body"><form onSubmit={handleUpdateResolutionAndEvidence}><div className="form-group mb-3"><label htmlFor="resolutionText">Resolución</label><textarea id="resolutionText" className="form-control" rows="5" value={resolutionText} onChange={(e) => setResolutionText(e.target.value)}></textarea></div><div className="form-group mb-3"><label>Evidencia Existente</label>{evidenceFiles.length > 0 ? (<ul className="list-group">{evidenceFiles.map(file => (<li key={file.id} className="list-group-item d-flex justify-content-between align-items-center"><a href={`/api/v1/tickets/${ticketId}/evidence/${file.id}`} target="_blank" rel="noopener noreferrer">{file.file_name}</a><button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveEvidence(file.id)}>Eliminar</button></li>))}</ul>) : (<p>No hay evidencia adjunta.</p>)}</div><div className="form-group mb-3"><label htmlFor="newEvidenceFiles">Adjuntar Nueva Evidencia</label><input type="file" id="newEvidenceFiles" className="form-control" multiple onChange={handleNewEvidenceFileChange} /> {newEvidenceFiles.length > 0 && (<div className="selected-files-list mt-2">{newEvidenceFiles.map((file, index) => (<div key={index} className="selected-file-item"><span>{file.name}</span><button type="button" onClick={() => handleRemoveNewEvidenceFile(file)} className="remove-file-btn">X</button></div>))}</div>)}</div><button type="submit" className="btn btn-primary">Guardar Resolución y Evidencia</button></form></div></div>
+                <div className="card shadow-sm mb-4">
+                    <div className="card-header">Sección de Resolución</div>
+                    <div className="card-body">
+                        <form onSubmit={handleUpdateResolutionAndEvidence}>
+                            <div className="form-group mb-3">
+                                <label htmlFor="resolutionText">Resolución</label>
+                                <textarea
+                                    id="resolutionText"
+                                    className="form-control"
+                                    rows="5"
+                                    value={resolutionText}
+                                    onChange={(e) => setResolutionText(e.target.value)}
+                                    readOnly={!!singleTicket.resolucion}
+                                ></textarea>
+                            </div>
+                            <div className="form-group mb-3">
+                                <label>Evidencia Existente</label>
+                                {evidenceFiles.length > 0 ? (
+                                    <ul className="list-group">
+                                        {evidenceFiles.map(file => (
+                                            <li key={file.id} className="list-group-item d-flex justify-content-between align-items-center">
+                                                <a href={`/api/v1/tickets/${ticketId}/evidence/${file.id}`} target="_blank" rel="noopener noreferrer">{file.file_name}</a>
+                                                {!singleTicket.resolucion && (
+                                                    <button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveEvidence(file.id)}>Eliminar</button>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p>No hay evidencia adjunta.</p>
+                                )}
+                            </div>
+                            
+                            {!singleTicket.resolucion && (
+                                <>
+                                    <div className="form-group mb-3">
+                                        <label htmlFor="newEvidenceFiles">Adjuntar Nueva Evidencia</label>
+                                        <input type="file" id="newEvidenceFiles" className="form-control" multiple onChange={handleNewEvidenceFileChange} />
+                                        {newEvidenceFiles.length > 0 && (
+                                            <div className="selected-files-list mt-2">
+                                                {newEvidenceFiles.map((file, index) => (
+                                                    <div key={index} className="selected-file-item">
+                                                        <span>{file.name}</span>
+                                                        <button type="button" onClick={() => handleRemoveNewEvidenceFile(file)} className="remove-file-btn">X</button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button type="submit" className="btn btn-primary">Guardar Resolución y Evidencia</button>
+                                </>
+                            )}
+                        </form>
+                    </div>
+                </div>
                 <div className="card shadow-sm mb-4"><div className="card-header">Comentarios</div><div className="card-body">{comments.length > 0 ? (<ul className="list-group mb-3">{comments.map(comment => (<li key={comment.id} className="list-group-item d-flex align-items-start"><div className="me-3"><Avatar user={comment.owner} /></div><div className="flex-grow-1"><div className="d-flex justify-content-between"><strong>{comment.owner?.first_name} {comment.owner?.last_name}</strong><small className="text-muted">{formatDateTime(comment.created_at)}</small></div><p className="mb-0 mt-1">{comment.content}</p></div></li>))}</ul>) : (<p>No hay comentarios para este ticket.</p>)}<form onSubmit={handleCommentSubmit}><div className="form-group mb-3"><label htmlFor="newComment">Añadir Comentario</label><textarea id="newComment" className="form-control" rows="3" value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Escribe tu comentario aquí..." required></textarea></div><button type="submit" className="btn btn-primary">Enviar Comentario</button></form></div></div>
                 {showResolutionConfirmModal && (<div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}><div className="modal-dialog modal-dialog-centered"><div className="modal-content"><div className="modal-header"><h5 className="modal-title">Confirmar Resolución</h5><button type="button" className="btn-close" onClick={() => setShowResolutionConfirmModal(false)}></button></div><div className="modal-body"><p>¿Estás seguro de que resolviste el ticket?</p><p><strong>Se cambiará el estado del ticket a "Resuelto".</strong></p></div><div className="modal-footer"><button type="button" className="btn btn-secondary" onClick={() => setShowResolutionConfirmModal(false)}>Cancelar</button><button type="button" className="btn btn-primary" onClick={confirmResolution}>Confirmar</button></div></div></div></div>)}
             </div>
