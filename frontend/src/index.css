@@ -1,0 +1,180 @@
+/* index.css */
+
+/* Importar fuentes (si no están ya en Dashboard.css o globalmente) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap');
+
+/* Variables CSS para colores */
+:root {
+  --background-color: #f5f5f5; /* Actualizado */
+  --text-color: #222222;     /* Actualizado */
+  --navbar-shadow: 0 2px 6px rgba(0,0,0,.06);
+  --card-background-color: #ffffff; /* Actualizado */
+  --card-shadow: 0 4px 10px rgba(0,0,0,.08);
+  --card-hover-shadow: 0 10px 25px rgba(0,0,0,0.15); /* Sombra de hover para modo claro */
+  --table-header-bg: #e9ecef;
+  --table-border-color: #dee2e6;
+  --nav-link-active-bg: #fff;
+  --nav-link-active-border: #e6e6e6;
+  --primary-color: #007bff; /* Definido */
+  --secondary-text-color: #6c757d; /* Definido */
+}
+
+.dark-mode {
+  --background-color: #111827; /* Actualizado */
+  --text-color: #f9fafb;     /* Actualizado */
+  --navbar-shadow: 0 2px 6px rgba(0,0,0,.3);
+  --card-background-color: #1f2937; /* Reverted to original dark mode card background */
+  --card-shadow: 0 4px 10px rgba(0,0,0,.3);
+  --card-hover-shadow: 0 10px 25px rgba(0,0,0,.6); /* Sombra de hover para modo oscuro */
+  --table-header-bg: #1e293b; /* Actualizado */
+  --table-border-color: #5a5f6b;
+  --nav-link-active-bg: #3a3f4b;
+  --nav-link-active-border: #4a4f5b;
+  --primary-color: #66b3ff; /* Definido para dark mode */
+  --secondary-text-color: #adb5bd; /* Definido para dark mode */
+}
+
+.dark-mode th {
+  color: var(--text-color) !important; /* Ensure text is light in dark mode */
+}
+
+/* 1) Eliminar borde/blanco alrededor de toda la página */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  font-family: 'Roboto', sans-serif; /* Asegurar la fuente base */
+  color: var(--text-color);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Transición suave */
+}
+
+.page-wrapper {
+  min-height: 100vh;
+  background-color: var(--background-color);
+  transition: background-color 0.3s ease;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* 2) Asegurar que la barra superior cubra todo y quede fija/opcional */
+.navbar {
+  position: sticky;   /* o fixed si la querés fija al hacer scroll */
+  top: 0;
+  z-index: 1000;
+  margin: 0;
+  border: 0;
+  box-shadow: var(--navbar-shadow);
+  transition: box-shadow 0.3s ease;
+}
+
+/* 3) Evitar colapso de margen del primer título debajo del navbar */
+/* Nota: .container ya tiene padding en Bootstrap, esto es para ajustar el espacio superior */
+main, .page-wrapper, .container {
+  padding-top: 12px;         /* separa el h1 de la barra */
+}
+h1:first-child { margin-top: 0; }
+
+/* 4) Tabs “Tickets creados / asignados”: tamaño y padding más cómodos */
+.nav-tabs .nav-link {
+  font-size: 0.98rem;        /* subilo a gusto: 1.0–1.05rem si querés más grande */
+  padding: 10px 16px;        /* más “clickeables” */
+  border-radius: 8px 8px 0 0;
+  color: var(--text-color); /* Usar variable */
+}
+.nav-tabs .nav-link.active {
+  font-weight: 600;
+  background: var(--nav-link-active-bg);
+  border-color: var(--nav-link-active-border) var(--nav-link-active-border) var(--nav-link-active-bg);
+}
+
+/* 5) Ajuste general de tarjetas para consistencia */
+/* Nota: Las tarjetas del dashboard ya tienen estilos en Dashboard.css,
+   estas reglas son para otras tarjetas generales de la aplicación. */
+.card {
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  background-color: var(--card-background-color);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Estilos para tablas */
+.table {
+  color: var(--text-color);
+}
+
+.table-light {
+  background-color: var(--table-header-bg) !important;
+  color: var(--text-color) !important;
+}
+
+.table > thead {
+  background-color: var(--table-header-bg);
+}
+
+.table-hover tbody tr:hover {
+  color: var(--text-color);
+  background-color: rgba(0, 0, 0, 0.075); /* Ajustar para dark mode */
+}
+
+.dark-mode .table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.075);
+}
+
+.dark-mode .btn-secondary {
+    background-color: #334155;
+    border-color: #475569;
+    color: var(--text-color);
+}
+.dark-mode .btn-secondary:hover {
+    background-color: #475569;
+    border-color: #475569;
+}
+
+.dark-mode .table-striped tbody tr:nth-of-type(odd) > * {
+    background-color: #0f172a;
+    color: var(--text-color);
+}
+.dark-mode .table-striped tbody tr:nth-of-type(even) > * {
+    background-color: #1e293b;
+    color: var(--text-color);
+}
+
+.table-bordered th, .table-bordered td {
+  border-color: var(--table-border-color);
+}
+
+/* Dark mode for form elements */
+.dark-mode .form-select,
+.dark-mode .form-control {
+    background-color: #1f2937;
+    color: var(--text-color);
+    border-color: #475569;
+}
+
+.dark-mode .form-select:focus,
+.dark-mode .form-control:focus {
+    background-color: #1f2937;
+    color: var(--text-color);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+}
+

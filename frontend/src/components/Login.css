@@ -1,0 +1,13 @@
+/* src/components/Login.css */
+
+.login-background {
+  background-image: url('../assets/images/fondo.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh; /* Asegura que cubra toda la altura de la vista */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

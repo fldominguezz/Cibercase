@@ -1,0 +1,209 @@
+/* frontend/src/components/Dashboard.css */
+
+/* Importar fuentes de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif; /* Fuente principal */
+  background-color: #F7F9FB; /* Fondo claro */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif; /* Títulos con Poppins */
+  text-align: center; /* Centrar títulos */
+  color: #333;
+}
+
+/* Contenedor principal del dashboard para el grid */
+.dashboard-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Columnas auto-ajustables */
+  gap: 1.5rem; /* Espacio entre tarjetas */
+  padding: 1.5rem; /* Padding interno */
+}
+
+/* Estilo base para todas las tarjetas del dashboard */
+.dashboard-card {
+  background-color: #ffffff; /* Fondo blanco para las tarjetas */
+  border-radius: 0.75rem; /* Bordes redondeados */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Sombra suave */
+  padding: 1.5rem; /* Padding interno */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Distribuye el espacio verticalmente */
+  max-width: 600px; /* Ancho máximo para tarjetas individuales */
+  margin: 0 auto; /* Centrar tarjetas */
+  height: 100%; /* Asegura que las tarjetas en el grid tengan la misma altura */
+}
+
+/* Estilos específicos para los contenedores de gráficos */
+.chart-container {
+  position: relative;
+  height: 250px; /* Altura fija para reducir el tamaño visual de los gráficos */
+  width: 100%; /* Asegura que el gráfico ocupe el ancho disponible */
+  margin: 0 auto; /* Centrar el contenedor del gráfico */
+}
+
+/* Ajustes para gráficos de dona para que se vean más pequeños */
+.chart-container.doughnut-chart {
+  height: 200px; /* Altura más pequeña para las donas */
+  max-width: 300px; /* Ancho máximo para las donas */
+}
+
+/* Estilos para la tabla de elementos recurrentes */
+.recurring-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.recurring-items-table th,
+.recurring-items-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.recurring-items-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.recurring-items-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-grid-container {
+    grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+    padding: 1rem;
+  }
+
+  .dashboard-card {
+    padding: 1rem;
+  }
+
+  .chart-container {
+    height: 200px; /* Ajustar altura en móviles */
+  }
+
+  .chart-container.doughnut-chart {
+    height: 180px; /* Ajustar altura de donas en móviles */
+  }
+}
+
+/* Estilos para los KPIs */
+.kpi-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.kpi-card {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.kpi-card:hover {
+  transform: translateY(-5px);
+}
+
+.kpi-card .card-title {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #6c757d; /* Color de texto más suave */
+}
+
+.kpi-card .card-text {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #007bff; /* Color primario para los números */
+}
+
+/* Ajustes para la lista de tickets y formularios */
+.ticket-list-card, .form-list-card {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.ticket-list-card .card-title, .form-list-card .card-title {
+  text-align: left; /* Alinear títulos de listas a la izquierda */
+  margin-bottom: 1rem;
+}
+
+.table-responsive {
+  margin-top: 1rem;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.table th, .table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-top: 1px solid #dee2e6;
+}
+
+.table thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.badge {
+  padding: 0.35em 0.65em;
+  border-radius: 0.375rem;
+  font-size: 0.75em;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+.badge.bg-primary { background-color: #007bff !important; }
+.badge.bg-warning { background-color: #ffc107 !important; color: #212529 !important; }
+.badge.bg-success { background-color: #28a745 !important; }
+.badge.bg-info { background-color: #17a2b8 !important; }
+.badge.bg-secondary { background-color: #6c757d !important; }
+.badge.bg-danger { background-color: #dc3545 !important; }
+.badge.bg-dark { background-color: #343a40 !important; }
+.badge.bg-light { background-color: #f8f9fa !important; color: #212529 !important; }
+
+.list-group-item {
+  background-color: transparent;
+  border-color: #eee;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+.list-group-flush .list-group-item {
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+}
+
+.list-group-flush .list-group-item:first-child {
+  border-top: 0;
+}
+
+.list-group-flush .list-group-item:last-child {
+  border-bottom: 0;
+}

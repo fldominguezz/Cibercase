@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Tickets SOC</title>
+    <!-- Enlace al archivo CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js CDN (última versión) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Datalabels Plugin (opcional, para mostrar valores en los gráficos) -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Dashboard de Tickets SOC</h1>
+
+        <!-- Sección de Métricas Clave -->
+        <div class="kpi-cards">
+            <div class="card kpi-card">
+                <h3>Total de Tickets</h3>
+                <p id="totalTickets" class="kpi-value"></p>
+            </div>
+            <div class="card kpi-card">
+                <h3>Tickets Asignados a Mí</h3>
+                <p id="assignedTickets" class="kpi-value"></p>
+            </div>
+            <div class="card kpi-card">
+                <h3>Tiempo Promedio de Resolución</h3>
+                <p id="avgResolutionTime" class="kpi-value"></p>
+            </div>
+            <div class="card kpi-card">
+                <h3>Tiempo Promedio de Respuesta</h3>
+                <p id="avgResponseTime" class="kpi-value"></p>
+            </div>
+        </div>
+
+        <!-- Sección de Gráficos -->
+        <div class="chart-grid">
+            <div class="card chart-card">
+                <h3>Tickets por Estado</h3>
+                <canvas id="statusChart"></canvas>
+            </div>
+            <div class="card chart-card">
+                <h3>Tickets por Severidad</h3>
+                <canvas id="severityChart"></canvas>
+            </div>
+            <div class="card chart-card full-width">
+                <h3>Tickets por Categoría</h3>
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="card chart-card full-width">
+                <h3>Evolución Semanal de Tickets</h3>
+                <canvas id="weeklyEvolutionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Sección de Top Recurrente -->
+        <div class="card top-recurring-card">
+            <h3>Top 10 Dispositivos/Usuarios Recurrentes</h3>
+            <ul id="topRecurringList">
+                <!-- Los elementos de la lista se llenarán con JavaScript -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Enlace al archivo JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

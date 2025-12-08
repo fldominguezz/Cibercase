@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model EventRaw {
+  id                   String    @id @default(uuid())
+  source               String
+  payload_jsonb        Json
+  received_at_utc      DateTime  @default(now())
+  sig_sha256           String?
+  incidentId           String?   @map("incident_id")
+  incident             Incident? @relation(fields: [incidentId], references: [id])
+  fortisiem_incident_id String?  @map("fortisiem_incident_id")
+  fortisiem_severity   String?   @map("fortisiem_severity")
+  fortisiem_rule_name  String?   @map("fortisiem_rule_name")
+  fortisiem_src_ip     String?   @map("fortisiem_src_ip")
+
+  @@map("event_raw")
+}
+
+model Incident {
+  id                       String          @id @default(uuid())
+  title                    String
+  description              String?
+  category                 String
+  subcategory              String?
+  severity                 String
+  priority                 String
+  status                   String
+  opened_at                DateTime        @default(now())
+  due_at                   DateTime?
+  closed_at                DateTime?
+  mitre_tactic             String?
+  mitre_technique          String?
+  is_personal_data_affected Boolean         @default(false) @map("is_personal_data_affected")
+  
+  events                   EventRaw[]
+  artifacts                Artifact[]
+  assignments              Assignment[]
+  personDataRefs           PersonDataRef[]
+
+  @@map("incident")
+}
+
+model Artifact {
+  id                 String    @id @default(uuid())
+  incidentId         String    @map("incident_id")
+  type               String
+  path               String
+  sha256             String
+  added_by_user_id   String    @map("added_by_user_id")
+  added_at           DateTime  @default(now())
+
+  incident           Incident  @relation(fields: [incidentId], references: [id])
+  addedBy            User      @relation(fields: [added_by_user_id], references: [id])
+
+  @@map("artifact")
+}
+
+model Assignment {
+  id                 String    @id @default(uuid())
+  incidentId         String    @map("incident_id")
+  assignee_user_id   String    @map("assignee_user_id")
+  group_id           String?
+  assigned_at        DateTime  @default(now())
+
+  incident           Incident  @relation(fields: [incidentId], references: [id])
+  assignee           User      @relation(fields: [assignee_user_id], references: [id])
+
+  @@map("assignment")
+}
+
+model SLAPolicy {
+  id                       String    @id @default(uuid())
+  name                     String    @unique
+  severity                 String
+  response_time_minutes    Int
+  resolution_time_minutes  Int
+
+  @@map("sla_policy")
+}
+
+model AuditLog {
+  id        String    @id @default(uuid())
+  actor     String
+  action    String
+  target    String
+  at_utc    DateTime  @default(now())
+  ip        String?
+  signature String?
+
+  @@map("audit_log")
+}
+
+model PersonDataRef {
+  id          String    @id @default(uuid())
+  incidentId  String    @map("incident_id")
+  data_type   String
+  pseudonym_ref String
+  is_encrypted Boolean   @default(false)
+
+  incident    Incident  @relation(fields: [incidentId], references: [id])
+
+  @@map("person_data_ref")
+}
+
+model Runbook {
+  id          String    @id @default(uuid())
+  key         String    @unique
+  title       String
+  markdown_path String
+
+  @@map("runbook")
+}
+
+model User {
+  id            String       @id @default(uuid())
+  name          String
+  email         String       @unique
+  password_hash String
+  role          String // soc_analyst, soc_lead, dfir, auditor, admin
+  mfa_enabled   Boolean      @default(false)
+  disabled      Boolean      @default(false)
+
+  artifacts     Artifact[]
+  assignments   Assignment[]
+
+  @@map("user")
+}
+
+model Settings {
+  key   String @id
+  value Json
+
+  @@map("settings")
+}

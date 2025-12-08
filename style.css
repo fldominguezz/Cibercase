@@ -1,0 +1,129 @@
+/* style.css */
+
+/* Variables para colores */
+:root {
+    --background-color: #F7F9FB;
+    --card-background: #FFFFFF;
+    --text-color: #333333;
+    --primary-blue: #007ACC;
+    --success-green: #2E8B57;
+    --warning-orange: #E67E22;
+    --danger-red: #E74C3C;
+    --neutral-gray: #BDC3C7;
+    --light-gray: #EEEEEE;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: var(--primary-blue);
+    margin-bottom: 30px;
+}
+
+/* Estilo base para todas las tarjetas */
+.card {
+    background-color: var(--card-background);
+    border-radius: 15px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card h3 {
+    color: var(--primary-blue);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+    border-bottom: 1px solid var(--light-gray);
+    padding-bottom: 10px;
+}
+
+/* Sección de Métricas Clave (KPIs) */
+.kpi-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.kpi-card {
+    text-align: center;
+}
+
+.kpi-card .kpi-value {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: var(--warning-orange); /* Color distintivo para los valores */
+    margin-top: 10px;
+}
+
+/* Sección de Gráficos */
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.chart-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chart-card.full-width {
+    grid-column: 1 / -1; /* Ocupa todo el ancho disponible */
+}
+
+/* Top Recurrente */
+.top-recurring-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.top-recurring-card li {
+    background-color: var(--background-color);
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.top-recurring-card li span:first-child {
+    color: var(--primary-blue);
+}
+
+.top-recurring-card li span:last-child {
+    color: var(--warning-orange);
+}
+
+/* Responsividad básica */
+@media (max-width: 768px) {
+    .kpi-cards, .chart-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  role          String    // soc_analyst, soc_lead, dfir, auditor, admin
+  mfaEnabled    Boolean   @default(false)
+  disabled      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  incidents     Incident[] @relation("AssignedIncidents")
+  reportedIncidents Incident[] @relation("ReportedIncidents")
+  artifacts     Artifact[]
+  auditLogs     AuditLog[] @relation("ActorAuditLogs")
+  assignments   Assignment[]
+}
+
+model EventRaw {
+  id            Int       @id @default(autoincrement())
+  source        String
+  payload       Json      @db.JsonB
+  receivedAtUtc DateTime  @default(now())
+  sigSha256     String?   // SHA-256 of the raw payload for integrity/dedup
+  incidents     Incident[]
+}
+
+model Incident {
+  id                     Int           @id @default(autoincrement())
+  title                  String
+  description            String?
+  category               String
+  subcategory            String?
+  severity               String
+  priority               String
+  status                 String
+  openedAt               DateTime      @default(now())
+  dueAt                  DateTime?
+  closedAt               DateTime?
+  mitreTactic            String?
+  mitreTechnique         String?
+  isPersonalDataAffected Boolean       @default(false)
+  eventRawId             Int?          @unique // Link to the raw event that triggered it
+  eventRaw               EventRaw?     @relation(fields: [eventRawId], references: [id])
+  detections             Json?         @db.JsonB // Array of detection details
+  artifacts              Artifact[]
+  assignments            Assignment[]
+  auditLogs              AuditLog[]    @relation("IncidentAuditLogs")
+  personDataRefs         PersonDataRef[]
+  reporterId             Int?
+  reporter               User?         @relation("ReportedIncidents", fields: [reporterId], references: [id])
+  assignedToId           Int?
+  assignedTo             User?         @relation("AssignedIncidents", fields: [assignedToId], references: [id])
+}
+
+model Artifact {
+  id          Int       @id @default(autoincrement())
+  incidentId  Int
+  incident    Incident  @relation(fields: [incidentId], references: [id])
+  type        String
+  path        String
+  sha256      String
+  addedById   Int
+  addedBy     User      @relation(fields: [addedById], references: [id])
+  addedAt     DateTime  @default(now())
+}
+
+model Assignment {
+  id             Int       @id @default(autoincrement())
+  incidentId     Int
+  incident       Incident  @relation(fields: [incidentId], references: [id])
+  assigneeUserId Int?
+  assigneeUser   User?     @relation(fields: [assigneeUserId], references: [id])
+  groupId        Int?
+  group          Group?    @relation(fields: [groupId], references: [id])
+  assignedAt     DateTime  @default(now())
+  unassignedAt   DateTime?
+}
+
+model SLAPolicy {
+  id                      Int      @id @default(autoincrement())
+  name                    String   @unique
+  severity                String
+  responseTimeMinutes     Int
+  resolutionTimeMinutes   Int
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model AuditLog {
+  id         Int       @id @default(autoincrement())
+  actorId    Int?
+  actor      User?     @relation("ActorAuditLogs", fields: [actorId], references: [id])
+  action     String
+  targetType String
+  targetId   Int?
+  incident   Incident? @relation("IncidentAuditLogs", fields: [targetId], references: [id]) // Example for incident-related logs
+  details    Json?     @db.JsonB
+  atUtc      DateTime  @default(now())
+  ip         String?
+  signature  String?   // For immutable logs, hash of the log entry
+}
+
+model PersonDataRef {
+  id         Int       @id @default(autoincrement())
+  incidentId Int
+  incident   Incident  @relation(fields: [incidentId], references: [id])
+  dataType   String    // e.g., "email", "phone", "name"
+  pseudonymRef String? // Reference to pseudonymized data
+  isEncrypted Boolean   @default(false)
+  originalValue String? // Stored encrypted or masked
+  createdAt  DateTime  @default(now())
+}
+
+model Runbook {
+  id        Int       @id @default(autoincrement())
+  key       String    @unique // e.g., "Exfiltration-T1048.001"
+  title     String
+  markdownPath String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Settings {
+  key       String @id
+  value     Json   @db.JsonB
+  updatedAt DateTime @updatedAt
+}
+
+model Group {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  description String?
+  assignments Assignment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}

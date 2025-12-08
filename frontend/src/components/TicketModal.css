@@ -1,0 +1,80 @@
+/* Estilos generales para el contenido del modal */
+.modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  /* Otros estilos generales del modal-content aquí si los hay */
+}
+
+/* Estilos para el contenido del modal en modo claro (cuando la clase dark-mode NO está presente) */
+html:not(.dark-mode) .modal-content,
+body:not(.dark-mode) .modal-content {
+  background-color: white !important; /* Forzar el fondo blanco en modo claro */
+  color: #333 !important; /* Texto oscuro en modo claro */
+}
+
+/* Estilos para el contenido del modal en modo oscuro (cuando la clase dark-mode SÍ está presente) */
+.dark-mode .modal-content {
+  background-color: #333 !important; /* Forzar el fondo oscuro en modo oscuro */
+  color: #f8f9fa !important; /* Texto claro en modo oscuro */
+}
+
+.dark-mode .modal-header,
+.dark-mode .modal-footer {
+  background-color: transparent;
+  border-bottom-color: #444; /* Darker border for header */
+  border-top-color: #444;    /* Darker border for footer */
+}
+
+.dark-mode .modal-body {
+  background-color: transparent;
+}
+
+.dark-mode .list-group-item {
+  background-color: #444; /* Slightly lighter than the modal background */
+  color: #f8f9fa;
+  border-color: #555;
+}
+
+.dark-mode .list-group-item a {
+  color: #8ab4f8; /* A nice blue for links in dark mode */
+}
+
+.dark-mode .btn-close {
+  filter: invert(1); /* Invert the color of the close button to make it visible */
+}
+
+
+.modal.show {
+  display: block;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent backdrop */
+}
+
+.modal-dialog {
+  margin-top: 10vh; /* Adjust as needed to center vertically */
+}
+
+.modal-xl-custom {
+
+  max-width: 95% !important; /* Use a percentage for responsiveness and !important to override Bootstrap's default */
+
+  width: 95% !important; /* Ensure it takes up the specified width */
+
+  margin: 0 auto !important; /* Remove top margin from here, will be handled by absolute positioning */
+
+  position: absolute !important; /* Use absolute positioning for precise control */
+
+  left: 50% !important; /* Center horizontally */
+
+  transform: translateX(-50%) !important; /* Adjust for exact centering */
+
+  top: 5vh !important; /* Adjust vertical position */
+
+}
+
+
+
+.ticket-description {
+
+    white-space: pre-wrap;
+
+}

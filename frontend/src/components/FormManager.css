@@ -1,0 +1,32 @@
+.form-manager {
+    padding: 2rem;
+    font-family: sans-serif;
+}
+
+.card {
+    background-color: var(--card-background-color);
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.form-container .form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    color: #6c757d;
+}
+
+.templates-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.templates-list li {
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+}
+
+.templates-list li:last-child {
+    border-bottom: none;
+}

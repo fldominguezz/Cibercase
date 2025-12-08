@@ -1,0 +1,94 @@
+/* DashboardSkeleton.css */
+.skeleton-container {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+}
+
+.skeleton {
+  animation: skeleton-loading 1.5s infinite linear;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dark-mode .skeleton {
+  background-color: #374151; /* Color de esqueleto para modo oscuro */
+}
+
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+.dark-mode .skeleton::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+}
+
+
+.skeleton-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.skeleton-kpi-card {
+  height: 100px;
+}
+
+.skeleton-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-auto-rows: 350px;
+  gap: 20px;
+}
+
+.skeleton-table-card {
+    grid-column: span 1 / auto;
+}
+
+@media (min-width: 992px) {
+    .skeleton-table-card {
+        grid-column: span 2 / auto;
+    }
+}
+
+
+@keyframes skeleton-loading {
+  0% {
+    background-color: #e0e0e0;
+  }
+  50% {
+    background-color: #f0f0f0;
+  }
+  100% {
+    background-color: #e0e0e0;
+  }
+}
+
+.dark-mode @keyframes skeleton-loading {
+  0% {
+    background-color: #374151;
+  }
+  50% {
+    background-color: #4b5563;
+  }
+  100% {
+    background-color: #374151;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

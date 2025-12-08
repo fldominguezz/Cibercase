@@ -1,0 +1,10 @@
+:80 {
+    reverse_proxy /api/* api:3000
+    # Add other proxy rules or static file serving here
+}
+
+:443 {
+    reverse_proxy /api/* api:3000
+    # Add other proxy rules or static file serving here
+    # tls internal # For development with self-signed certificates
+}

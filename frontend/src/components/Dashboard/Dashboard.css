@@ -1,0 +1,155 @@
+/* Dashboard.css */
+
+/* Keyframe animation for highlighting new tickets */
+@keyframes new-ticket-flash {
+  0%, 100% {
+    background-color: transparent;
+  }
+  25%, 75% {
+    background-color: rgba(66, 133, 244, 0.4); /* A more prominent blue flash */
+    box-shadow: 0 0 15px rgba(66, 133, 244, 0.6);
+  }
+  50% {
+    background-color: rgba(66, 133, 244, 0.2);
+  }
+}
+
+/* Apply the animation to the new ticket highlight class */
+.new-ticket-highlight {
+  animation: new-ticket-flash 2.5s ease-in-out;
+}
+
+.dashboard-container {
+  padding: 2rem;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.dashboard-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: var(--title-color);
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  background-color: var(--card-background-color);
+  padding: 1.5rem;
+  border-radius: 16px; /* Consistencia */
+  box-shadow: var(--card-shadow); /* Usar variable de tema */
+  text-align: center;
+  transition: all 0.3s ease-in-out; /* Transición suave para todos los cambios */
+  cursor: pointer;
+}
+
+.kpi-card:hover {
+  transform: translateY(-5px); /* Efecto de elevación */
+  box-shadow: var(--card-hover-shadow); /* Usar variable de tema para hover */
+}
+
+.kpi-value {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.kpi-label {
+  font-size: 1rem;
+  color: var(--secondary-text-color);
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Aplicar estilos generales de tarjeta y hover a todos los elementos tipo "card" */
+.card,
+.ticket-list-card,
+.form-list-card {
+  background-color: var(--card-background-color);
+  border: none;
+  border-radius: 16px; /* Bordes más redondeados */
+  box-shadow: var(--card-shadow); /* Usar variable de tema para sombra normal */
+  padding: 1.5rem;
+  transition: all 0.3s ease-in-out; /* Transiciones suaves para todos los cambios */
+}
+
+.card:hover,
+.ticket-list-card:hover,
+.form-list-card:hover {
+  transform: translateY(-5px); /* Efecto de elevación */
+  box-shadow: var(--card-hover-shadow); /* Usar variable de tema para sombra de hover */
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--title-color);
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+}
+
+.table-responsive {
+  /* max-height: 300px; */ /* Removed to allow vertical expansion */
+  /* overflow-y: auto; */  /* Removed to eliminate internal scrolling */
+}
+
+.table {
+  color: var(--text-color);
+}
+
+.table thead th {
+  background-color: var(--table-header-background);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--table-hover-background);
+}
+
+.nav-tabs .nav-link {
+  color: var(--secondary-text-color);
+  border: none;
+  border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  background-color: transparent;
+}
+
+.ticket-list-card {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  background-color: var(--card-background-color);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 20px;
+}
+
+.ticket-list-card .card-title {
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.form-list-card {
+  background-color: var(--card-background-color);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}

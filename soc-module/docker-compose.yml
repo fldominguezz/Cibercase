@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: soc_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - soc_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" # Expose for local development/debugging
+
+  api:
+    build:
+      context: . # Build from the root of soc-module
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/soc_db
+      NODE_ENV: development
+      JWT_SECRET: supersecretjwtkey # CHANGE THIS IN PRODUCTION
+      WEBHOOK_SECRET: anothersecretkey # CHANGE THIS IN PRODUCTION
+      NODE_PATH: /app/node_modules # Explicitly set NODE_PATH for ts-node
+    depends_on:
+      - db
+    ports:
+      - "3001:3000" # API listens on 3000 inside container, exposed on 3001
+      - "514:514/udp" # Expose Syslog UDP listener
+    volumes:
+      - ./src:/app/src # Mount the main src directory
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./prisma:/app/prisma # Mount prisma directory
+      - ./.env:/app/.env # Mount .env file
+    command: npm run dev # Assuming a dev script in package.json
+
+  webhook-listener:
+    build:
+      context: ./workers/webhooks
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/soc_db
+      WEBHOOK_SECRET: anothersecretkey # Must match API's webhook secret
+      # Add other webhook worker specific environment variables
+    depends_on:
+      - db
+    ports:
+      - "3002:3000" # Webhook listener listens on 3000, exposed on 3002
+    volumes:
+      - ./workers/webhooks/src:/app/src
+    command: npm run start # Assuming a start script in package.json
+
+  caddy:
+    build:
+      context: ./infra/caddy
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api # Caddy proxies to the API
+
+volumes:
+  soc_db_data:
+  caddy_data:
+  caddy_config:
