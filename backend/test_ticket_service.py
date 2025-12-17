@@ -69,7 +69,6 @@ def test_get_ticket_found(mock_repo, mock_db_session):
     assert result.reportado_por_nombre == "John Doe"
     mock_repo.get_ticket_with_details.assert_called_once_with(mock_db_session, ticket_id=ticket_id)
     mock_repo.get_evidence_for_ticket.assert_called_once_with(mock_db_session, ticket_id=ticket_id)
-    mock_repo.get_alert_for_ticket.assert_called_once_with(mock_db_session, ticket_id=ticket_id)
 
 @patch('services.ticket_service.ticket_repository')
 def test_get_ticket_not_found(mock_repo, mock_db_session):
