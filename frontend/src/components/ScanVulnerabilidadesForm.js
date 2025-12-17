@@ -33,11 +33,11 @@ const ScanVulnerabilidadesForm = () => {
         method: 'POST',
         body: JSON.stringify(payload),
       });
-      alert('Ticket creado con éxito!');
-      navigate(`/tickets/${response.ticket_id}`);
+      alert('¡Formulario enviado con éxito!');
+      navigate('/');
     } catch (err) {
-      setError(`Error al crear el ticket: ${err.message}`);
-      alert(`Error al crear el ticket: ${err.message}`);
+      setError(`Error al enviar el formulario: ${err.message}`);
+      alert(`Error al enviar el formulario: ${err.message}`);
     } finally {
       setSubmitting(false);
     }

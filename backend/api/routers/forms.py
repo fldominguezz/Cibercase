@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+import json
 from sqlalchemy.orm import Session
 from typing import Dict, Any, List
 from datetime import datetime, timezone
@@ -97,7 +98,30 @@ def read_form_submissions(
     Retrieve a list of form submissions.
     """
     submissions = form_repository.list_submissions(db=db, skip=skip, limit=limit)
-    return submissions
+    
+    # Manual serialization to bypass Pydantic issues
+    results = []
+    for sub in submissions:
+        form_data = {}
+        try:
+            if sub.datos_json:
+                form_data = json.loads(sub.datos_json)
+        except json.JSONDecodeError:
+            form_data = {"error": "Failed to decode JSON data."}
+
+        results.append({
+            "id": sub.id,
+            "enviado_en": sub.enviado_en,
+            "form_data": form_data,
+            "template": {
+                "nombre": sub.template.nombre if sub.template else "Formulario Genérico"
+            },
+            "enviado_por": {
+                "first_name": sub.enviado_por.first_name if sub.enviado_por else "Usuario",
+                "last_name": sub.enviado_por.last_name if sub.enviado_por else "Desconocido"
+            }
+        })
+    return results
 
 @router.post("/submit")
 async def submit_form(

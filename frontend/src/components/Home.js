@@ -1150,11 +1150,27 @@ const Home = () => {
                             <button 
                               className="btn btn-sm btn-info"
                               onClick={() => {
-                                // Potentially navigate to a submission detail view in the future
-                                // For now, we can just log it or show an info modal
+                                const formatSubmissionData = (submission) => {
+                                  let formattedData = `Formulario: ${submission.template?.nombre || 'Formulario Genérico'}\n`;
+                                  formattedData += `Enviado por: ${submission.enviado_por.first_name} ${submission.enviado_por.last_name}\n`;
+                                  formattedData += `Fecha: ${formatDateTime(submission.enviado_en)}\n\n`;
+                                  formattedData += '----------------------------------------\n';
+                                  formattedData += 'Datos del Formulario:\n';
+                                  formattedData += '----------------------------------------\n\n';
+                                  
+                                  if (submission.form_data && typeof submission.form_data === 'object') {
+                                    Object.entries(submission.form_data).forEach(([key, value]) => {
+                                      formattedData += `  • ${key.replace(/_/g, ' ')}: ${value}\n`;
+                                    });
+                                  } else {
+                                    formattedData += 'No hay datos de formulario disponibles.';
+                                  }
+                                  return formattedData;
+                                };
+
                                 openInfoModal(
-                                  `Detalles de Envío #${submission.id}`, 
-                                  `Formulario: ${submission.template?.nombre || 'Formulario Genérico'}\nEnviado por: ${submission.enviado_por.first_name} ${submission.enviado_por.last_name}\nFecha: ${formatDateTime(submission.enviado_en)}`
+                                  `Detalles de Envío #${submission.id}`,
+                                  formatSubmissionData(submission)
                                 );
                               }}
                             >
