@@ -70,10 +70,6 @@ const Navbar = ({ theme, toggleTheme }) => {
                 {theme === 'light' ? <i className="fas fa-moon"></i> : <i className="fas fa-sun"></i>}
               </button>
 
-              <div className="nav-item dropdown me-3">
-                {/* ... Notification dropdown ... */}
-              </div>
-
               <div className="profile-section">
                 <Avatar user={currentUser} onClick={() => setIsDropdownVisible(!isDropdownVisible)} />
                 {isDropdownVisible && (

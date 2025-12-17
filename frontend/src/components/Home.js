@@ -154,7 +154,6 @@ const Home = () => {
   const [editingTicketId, setEditingTicketId] = useState(null); // State to track which ticket is being edited
   const [editedTicketData, setEditedTicketData] = useState(null); // State to hold edited ticket data
   const [birthdayUsers, setBirthdayUsers] = useState([]); // State for birthday reminder
-  const [newTicketCount, setNewTicketCount] = useState(0);
 
   // State for date range filter
   const [startDate, setStartDate] = useState('');
@@ -312,7 +311,6 @@ const Home = () => {
         setTicketsByStatus(prev => ({ ...prev, [newTicket.estado]: (prev[newTicket.estado] || 0) + 1 }));
         setTicketsBySeverity(prev => ({ ...prev, [newTicket.severidad]: (prev[newTicket.severidad] || 0) + 1 }));
         setTicketsByCategory(prev => ({ ...prev, [newTicket.categoria]: (prev[newTicket.categoria] || 0) + 1 }));
-        setNewTicketCount(prev => prev + 1);
 
         // Remove the highlight after a delay
         setTimeout(() => {
@@ -337,7 +335,7 @@ const Home = () => {
       // Consume the message to prevent re-processing
       consumeMessage();
     }
-  }, [latestMessage, consumeMessage, allTickets, currentUser, navigate, setNewTicketCount]);
+  }, [latestMessage, consumeMessage, allTickets, currentUser, navigate]);
 
   // Función para crear gráficos de dona
   const createDoughnutChart = (chartRef, labels, data, colors, total, newCount, clickHandler = null, currentTitleColor = '#111') => {
@@ -621,6 +619,15 @@ const Home = () => {
   }, [loading, error, totalTickets, newTicketCount, ticketsByStatus, ticketsBySeverity, ticketsByCategory, monthlyEvolution, theme, navigate]);
 
 
+  // const handleLogout = () => { // Removed unused function
+  //   localStorage.removeItem('token');
+  //   navigate('/login');
+  // };
+
+  // const handleViewTicketClick = (ticketId) => { // Removed unused function
+  //   openTicketModal(ticketId); // Use global modal
+  // };
+
   const handleRemediate = async (ticketId) => {
     try {
       await remediateTicket(ticketId);
@@ -859,7 +866,7 @@ const Home = () => {
                       <label htmlFor="startDate" className="form-label">Fecha de Inicio:</label>
                       <input 
                         type="date" 
-                        className="form-control" 
+                        className="form-control"
                         id="startDate" 
                         value={startDate} 
                         onChange={(e) => setStartDate(e.target.value)} 
@@ -869,7 +876,7 @@ const Home = () => {
                       <label htmlFor="endDate" className="form-label">Fecha de Fin:</label>
                       <input 
                         type="date" 
-                        className="form-control" 
+                        className="form-control"
                         id="endDate" 
                         value={endDate} 
                         onChange={(e) => setEndDate(e.target.value)} 
