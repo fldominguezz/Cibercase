@@ -31,7 +31,7 @@ async def create_notification(db: Session, user_id: int, message: str, link: Opt
             "id": notification.id,
             "message": notification.message,
             "link": notification.link,
-            "read": notification.read,
+            "read": notification.is_read,
             "created_at": notification.created_at.isoformat()
         }
     }
@@ -69,7 +69,7 @@ async def create_ticket(
         sla_vencimiento=sla_vencimiento,
         categoria=categoria
     )
-    ticket = ticket_service.create_ticket(db=db, ticket_data=ticket_in, files=files, current_user_id=current_user.id)
+    ticket = await ticket_service.create_ticket(db=db, ticket_data=ticket_in, files=files, current_user_id=current_user.id)
 
     # Notify assigned user if any
     if ticket.asignado_a_id:
