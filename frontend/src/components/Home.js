@@ -138,6 +138,7 @@ const Home = () => {
   const [allTickets, setAllTickets] = useState([]); // New state for all tickets
   const [formSubmissions, setFormSubmissions] = useState([]);
   const [totalTickets, setTotalTickets] = useState(0);
+  const [newTicketCount, setNewTicketCount] = useState(0);
   const [myAssignedTicketsCount, setMyAssignedTicketsCount] = useState(0);
   const [ticketsByStatus, setTicketsByStatus] = useState({});
   const [ticketsBySeverity, setTicketsBySeverity] = useState({});
@@ -224,6 +225,7 @@ const Home = () => {
       setTotalTickets(totalTicketsCount);
       setMyAssignedTicketsCount(assignedCount);
       setTicketsByStatus(statusCounts);
+      setNewTicketCount(statusCounts['Nuevo'] || 0);
       setTicketsBySeverity(severityCounts);
       setTicketsByCategory(categoryCounts);
       setMonthlyEvolution(monthlyEvoData); // Changed from setWeeklyEvolution
