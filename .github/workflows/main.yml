@@ -32,6 +32,12 @@ jobs:
     #     pip install flake8
     #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
+    - name: Debug Files
+      run: |
+        ls -la .
+        cat test_main.py
+        cat test_ticket_service.py
+
     - name: Test with pytest
       run: |
         pip install pytest
