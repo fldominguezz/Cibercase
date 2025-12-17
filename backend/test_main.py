@@ -25,7 +25,7 @@ def override_get_db():
     finally:
         db.close()
         Base.metadata.drop_all(bind=engine) # Drop tables after tests
-        del os.environ["TESTING"] # Clean up environment variable
+        os.environ.pop("TESTING", None) # Clean up environment variable
 
 app.dependency_overrides[get_db] = override_get_db
 
@@ -91,7 +91,7 @@ def test_create_ticket_authenticated(test_client_with_admin):
         "resolucion": "Pending",
     }    
     
-    response = client.post("/api/v1/tickets/", json=ticket_data, headers=headers)
+    response = client.post("/api/v1/tickets/", data=ticket_data, headers=headers)
     assert response.status_code == 200
     created_ticket = response.json()
     assert created_ticket["resumen"] == "Test Ticket Summary"
@@ -119,7 +119,7 @@ def test_read_tickets_search(test_client_with_admin):
         "severidad": "Baja",
         "categoria": "General",
     }
-    create_response = client.post("/api/v1/tickets/", json=ticket_data, headers=headers)
+    create_response = client.post("/api/v1/tickets/", data=ticket_data, headers=headers)
     assert create_response.status_code == 200
     created_ticket = create_response.json()
 

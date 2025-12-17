@@ -60,7 +60,7 @@ def test_get_ticket_found(mock_repo, mock_db_session):
     mock_repo.get_alert_for_ticket.return_value = None
 
     ticket_id = 1
-    result = ticket_service.get_ticket(mock_db_session, ticket_id)
+    result = ticket_service.get_ticket(mock_db_session, ticket_id, current_user_id=1)
 
     # Assertions
     assert result is not None
@@ -79,7 +79,7 @@ def test_get_ticket_not_found(mock_repo, mock_db_session):
     mock_repo.get_ticket_with_details.return_value = None
 
     ticket_id = 999 # A non-existent ticket ID
-    result = ticket_service.get_ticket(mock_db_session, ticket_id)
+    result = ticket_service.get_ticket(mock_db_session, ticket_id, current_user_id=1)
 
     # Assertions
     assert result is None
