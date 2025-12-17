@@ -10,9 +10,6 @@ const InstalacionAvForm = () => {
   const [antivirus, setAntivirus] = useState('');
   const [tipoAvFree, setTipoAvFree] = useState('');
   const [observaciones, setObservaciones] = useState('');
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
   const handleCantidadChange = (e) => {
     let count = parseInt(e.target.value, 10);
     if (isNaN(count) || count < 1) {
@@ -36,8 +33,6 @@ const InstalacionAvForm = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setError('');
 
     // Convert equipos array to a string for the description
     const equiposString = equipos.map((eq, i) => 
@@ -59,17 +54,14 @@ const InstalacionAvForm = () => {
     };
 
     try {
-      const response = await apiFetch('/forms/submit', {
+      await apiFetch('/forms/submit', {
         method: 'POST',
         body: JSON.stringify(payload),
       });
       alert('¡Formulario enviado con éxito!');
       navigate('/');
     } catch (err) {
-      setError(`Error al enviar el formulario: ${err.message}`);
       alert(`Error al enviar el formulario: ${err.message}`);
-    } finally {
-      setSubmitting(false);
     }
   };
 

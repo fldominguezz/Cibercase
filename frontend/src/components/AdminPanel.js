@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { apiFetch } from '../api';
+import React, { useState } from 'react';
 import './AdminPanel.css';
 import UserManagement from './UserManagement';
 // import GroupManagement from './GroupManagement';

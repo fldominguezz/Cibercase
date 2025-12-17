@@ -8,13 +8,8 @@ const ScanVulnerabilidadesForm = () => {
   const [tipoScan, setTipoScan] = useState('No intrusivo');
   const [fechaDeseada, setFechaDeseada] = useState('');
   const [justificacion, setJustificacion] = useState('');
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setError('');
 
     const form_data = {
       activos_a_escanear: activos,
@@ -29,17 +24,14 @@ const ScanVulnerabilidadesForm = () => {
     };
 
     try {
-      const response = await apiFetch('/forms/submit', {
+      await apiFetch('/forms/submit', {
         method: 'POST',
         body: JSON.stringify(payload),
       });
       alert('¡Formulario enviado con éxito!');
       navigate('/');
     } catch (err) {
-      setError(`Error al enviar el formulario: ${err.message}`);
       alert(`Error al enviar el formulario: ${err.message}`);
-    } finally {
-      setSubmitting(false);
     }
   };
 

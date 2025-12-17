@@ -103,33 +103,6 @@ const Tickets = () => {
         }
     }, []);
 
-    const handleLocalCloseModal = () => {
-        closeTicketModal(); // Close the global modal
-        fetchFilteredTickets(); // Then refresh tickets
-    };
-
-    const handleRemediate = async (ticketId) => {
-        try {
-            await remediateTicket(ticketId);
-            toast.success('Ticket remediado con éxito y asignado a ti.');
-            fetchFilteredTickets();
-        } catch (err) {
-            toast.error(`Error al remediar el ticket: ${err.message}`);
-        }
-    };
-
-    const handleCommentSubmit = async (e) => {
-        e.preventDefault();
-        if (!newComment.trim()) return;
-        try {
-            await createTicketComment(ticketId, newComment);
-            setNewComment('');
-            fetchTicketComments(ticketId);
-        } catch (error) {
-            setError(error.message);
-        }
-    };
-
     const fetchFilteredTickets = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -159,6 +132,23 @@ const Tickets = () => {
             setIsLoading(false);
         }
     }, [location.search, currentPage, pageSize, filterStatus, filterSeverity, filterCategory, filterAssignedTo, filterReportedBy, searchTerm, sortBy, sortOrder, filterStartDate, filterEndDate]);
+    
+    const handleLocalCloseModal = () => {
+        closeTicketModal(); // Close the global modal
+        fetchFilteredTickets(); // Then refresh tickets
+    };
+
+    const handleCommentSubmit = async (e) => {
+        e.preventDefault();
+        if (!newComment.trim()) return;
+        try {
+            await createTicketComment(ticketId, newComment);
+            setNewComment('');
+            fetchTicketComments(ticketId);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
 
     useEffect(() => {
         fetchInitialData();

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { toast } from 'react-toastify'; // Import toast
 import { motion } from 'framer-motion'; // Import framer-motion
-import { 
-  apiFetch, 
+import {
+  apiFetch,
   readTickets,
   readFormSubmissions, // Replaced readFormTemplates
   fetchTotalTicketsCount,
@@ -23,15 +23,15 @@ import { useWebSocketContext } from '../context/WebSocketContext'; // Import use
 import { useModal } from '../context/ModalContext'; // Import useModal
 
 // Chart.js imports
-import { Chart as ChartJS, 
-  ArcElement, 
-  Tooltip, 
+import { Chart as ChartJS,
+  ArcElement,
+  Tooltip,
   Legend,
   CategoryScale,
   LinearScale,
   BarElement,
   Title,
-  PointElement, 
+  PointElement,
   LineElement,
   DoughnutController, // Importar DoughnutController
   BarController, // Importar BarController
@@ -42,14 +42,14 @@ import ChartDataLabels from 'chartjs-plugin-datalabels'; // Import datalabels pl
 
 // Registrar Chart.js components
 ChartJS.register(
-  ArcElement, 
-  Tooltip, 
+  ArcElement,
+  Tooltip,
   Legend,
-  CategoryScale, 
-  LinearScale, 
-  BarElement, 
-  Title, 
-  PointElement, 
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  PointElement,
   LineElement,
   DoughnutController, // Registrar DoughnutController
   BarController, // Registrar BarController
@@ -312,6 +312,7 @@ const Home = () => {
         setTicketsByStatus(prev => ({ ...prev, [newTicket.estado]: (prev[newTicket.estado] || 0) + 1 }));
         setTicketsBySeverity(prev => ({ ...prev, [newTicket.severidad]: (prev[newTicket.severidad] || 0) + 1 }));
         setTicketsByCategory(prev => ({ ...prev, [newTicket.categoria]: (prev[newTicket.categoria] || 0) + 1 }));
+        setNewTicketCount(prev => prev + 1);
 
         // Remove the highlight after a delay
         setTimeout(() => {
@@ -336,7 +337,7 @@ const Home = () => {
       // Consume the message to prevent re-processing
       consumeMessage();
     }
-  }, [latestMessage, consumeMessage, allTickets, currentUser, navigate]);
+  }, [latestMessage, consumeMessage, allTickets, currentUser, navigate, setNewTicketCount]);
 
   // Función para crear gráficos de dona
   const createDoughnutChart = (chartRef, labels, data, colors, total, newCount, clickHandler = null, currentTitleColor = '#111') => {
@@ -617,17 +618,8 @@ const Home = () => {
       };
       createLineChart(monthlyChartRef, monthlyEvolutionChartData.labels, monthlyEvolutionChartData.data, monthlyEvolutionChartData.color); // Changed from weeklyChartRef
     }
-  }, [loading, error, totalTickets, ticketsByStatus, ticketsBySeverity, ticketsByCategory, monthlyEvolution, theme]); // Añadir theme a las dependencias
+  }, [loading, error, totalTickets, newTicketCount, ticketsByStatus, ticketsBySeverity, ticketsByCategory, monthlyEvolution, theme, navigate]);
 
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
-
-  const handleViewTicketClick = (ticketId) => {
-    openTicketModal(ticketId); // Use global modal
-  };
 
   const handleRemediate = async (ticketId) => {
     try {

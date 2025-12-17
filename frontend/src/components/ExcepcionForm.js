@@ -8,13 +8,8 @@ const ExcepcionForm = () => {
   const [sistema, setSistema] = useState('');
   const [justificacion, setJustificacion] = useState('');
   const [duracion, setDuracion] = useState('');
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setError('');
 
     const form_data = {
       solicitante,
@@ -29,17 +24,14 @@ const ExcepcionForm = () => {
     };
 
     try {
-      const response = await apiFetch('/forms/submit', {
+      await apiFetch('/forms/submit', {
         method: 'POST',
         body: JSON.stringify(payload),
       });
       alert('¡Formulario enviado con éxito!');
       navigate('/');
     } catch (err) {
-      setError(`Error al enviar el formulario: ${err.message}`);
       alert(`Error al enviar el formulario: ${err.message}`);
-    } finally {
-      setSubmitting(false);
     }
   };
 

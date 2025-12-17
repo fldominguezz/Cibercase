@@ -46,8 +46,8 @@ def test_get_ticket_found(mock_repo, mock_db_session):
     mock_ticket_obj.causa_raiz = "Test Root Cause" # Added missing attribute
     mock_ticket_obj.resolucion = "Test Resolution" # Added missing attribute
     mock_ticket_obj.raw_logs = "Test Raw Logs" # Added missing attribute
-            mock_ticket_obj.ticket_uid = "test-uid-123" # Added missing attribute
-            mock_ticket_obj.platform = "Test Platform"
+    mock_ticket_obj.ticket_uid = "test-uid-123" # Added missing attribute
+    mock_ticket_obj.platform = "Test Platform"
     mock_reporter_first_name = "John"
     mock_reporter_last_name = "Doe"
 

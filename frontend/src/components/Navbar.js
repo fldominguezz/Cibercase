@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { apiFetch, getNotifications, getUnreadNotificationsCount, markNotificationAsRead } from '../api';
+import { apiFetch } from '../api';
 import Avatar from './Avatar';
 import AvatarUploadModal from './AvatarUploadModal';
 import ChangePasswordModal from './ChangePasswordModal'; // Import the new modal
@@ -12,12 +12,11 @@ const Navbar = ({ theme, toggleTheme }) => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false); // New state for password modal
-  
-  // Notification states
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [notifications, setNotifications] = useState([]);
-  const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
-  const [notificationError, setNotificationError] = useState(null);
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  }, [navigate]);
 
   const fetchCurrentUser = useCallback(async () => {
     try {
@@ -27,46 +26,14 @@ const Navbar = ({ theme, toggleTheme }) => {
       console.error("Failed to fetch user", err);
       handleLogout();
     }
-  }, []);
-
-  const fetchNotifications = useCallback(async () => {
-    try {
-      setNotificationError(null);
-      const count = await getUnreadNotificationsCount();
-      setUnreadCount(count);
-      const notifs = await getNotifications();
-      setNotifications(notifs);
-    } catch (err) {
-      console.error("Failed to fetch notifications", err);
-      setNotificationError("Error al cargar notificaciones. Revisa la conexión o el servidor.");
-      setNotifications([]);
-    }
-  }, []);
+  }, [handleLogout]);
 
   useEffect(() => {
     fetchCurrentUser();
-    fetchNotifications();
-
-    const notificationInterval = setInterval(fetchNotifications, 60000);
-    return () => clearInterval(notificationInterval);
-  }, [fetchCurrentUser, fetchNotifications]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+  }, [fetchCurrentUser]);
 
   const handleUploadSuccess = () => {
     fetchCurrentUser();
-  };
-
-  const handleNotificationClick = async (notificationId) => {
-    try {
-      await markNotificationAsRead(notificationId);
-      fetchNotifications();
-    } catch (err) {
-      console.error("Failed to mark notification as read", err);
-    }
   };
 
   return (
@@ -96,8 +63,8 @@ const Navbar = ({ theme, toggleTheme }) => {
               </li>
             </ul>
             <div className="d-flex align-items-center">
-              <button 
-                onClick={toggleTheme} 
+              <button
+                onClick={toggleTheme}
                 className="btn btn-link nav-link text-white me-3"
               >
                 {theme === 'light' ? <i className="fas fa-moon"></i> : <i className="fas fa-sun"></i>}
@@ -123,7 +90,7 @@ const Navbar = ({ theme, toggleTheme }) => {
         </div>
       </nav>
 
-      <AvatarUploadModal 
+      <AvatarUploadModal
         show={isAvatarModalOpen}
         onClose={() => setIsAvatarModalOpen(false)}
         onUploadSuccess={handleUploadSuccess}

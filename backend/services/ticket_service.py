@@ -229,79 +229,87 @@ class TicketService:
                 )
 
     def update_ticket(self, db: Session, ticket_id: int, ticket_in: TicketUpdate, current_user: User, files: List[UploadFile]) -> Optional[TicketInDB]:
-        # Retrieve the existing ticket from the database
-        db_ticket = ticket_repository.get(db, id=ticket_id)
-        if not db_ticket:
-            return None
+        try:
+            # Retrieve the existing ticket from the database
+            db_ticket = ticket_repository.get(db, id=ticket_id)
+            if not db_ticket:
+                return None
 
-        # Enforce role-based permissions for updating the ticket
-        self._check_ticket_update_permissions(current_user, db_ticket, ticket_in)
+            # Enforce role-based permissions for updating the ticket
+            self._check_ticket_update_permissions(current_user, db_ticket, ticket_in)
 
-        # Store old values of the ticket for audit logging purposes
-        old_values = {c.name: getattr(db_ticket, c.name) for c in db_ticket.__table__.columns}
+            # Store old values of the ticket for audit logging purposes
+            old_values = {c.name: getattr(db_ticket, c.name) for c in db_ticket.__table__.columns}
 
-        # Update the ticket record in the database
-        updated_ticket_db = ticket_repository.update(db, db_obj=db_ticket, obj_in=ticket_in)
+            # Update the ticket record in the database
+            updated_ticket_db = ticket_repository.update(db, db_obj=db_ticket, obj_in=ticket_in)
 
-        # Handle file uploads if any evidence files are provided
-        for file in files:
-            if file.filename:
-                # Generate a unique filename to prevent collisions
-                file_extension = file.filename.split(".")[-1]
-                unique_filename = f"{uuid.uuid4()}.{file_extension}"
-                file_path = f"uploads/{unique_filename}"
-                
-                # Save the uploaded file to the specified path
-                with open(file_path, "wb") as buffer:
-                    shutil.copyfileobj(file.file, buffer)
-                
-                # Calculate SHA256 hash of the uploaded file for integrity verification
-                sha256_hash = hashlib.sha256()
-                with open(file_path, "rb") as f:
-                    # Read file in chunks to handle large files efficiently
-                    for byte_block in iter(lambda: f.read(4096), b""):
-                        sha256_hash.update(byte_block)
-                
-                # Create an Evidence record in the database for the uploaded file
-                evidence = Evidence(
-                    ticket_id=updated_ticket_db.id,
-                    nombre_archivo=file.filename,
-                    ruta_almacenamiento=file_path,
-                    hash_sha256=sha256_hash.hexdigest(),
-                    subido_por_id=current_user.id
+            # Handle file uploads if any evidence files are provided
+            for file in files:
+                if file.filename:
+                    # Generate a unique filename to prevent collisions
+                    file_extension = file.filename.split(".")[-1]
+                    unique_filename = f"{uuid.uuid4()}.{file_extension}"
+                    file_path = f"uploads/{unique_filename}"
+                    
+                    # Save the uploaded file to the specified path
+                    with open(file_path, "wb") as buffer:
+                        shutil.copyfileobj(file.file, buffer)
+                    
+                    # Calculate SHA256 hash of the uploaded file for integrity verification
+                    sha256_hash = hashlib.sha256()
+                    with open(file_path, "rb") as f:
+                        # Read file in chunks to handle large files efficiently
+                        for byte_block in iter(lambda: f.read(4096), b""):
+                            sha256_hash.update(byte_block)
+                    
+                    # Create an Evidence record in the database for the uploaded file
+                    evidence = Evidence(
+                        ticket_id=updated_ticket_db.id,
+                        nombre_archivo=file.filename,
+                        ruta_almacenamiento=file_path,
+                        hash_sha256=sha256_hash.hexdigest(),
+                        subido_por_id=current_user.id
+                    )
+                    db.add(evidence)
+                    db.commit() # Commit after adding each evidence to ensure it's linked
+                    db.refresh(evidence) # Refresh to get the ID
+
+            # Create an audit log entry if there were significant changes
+            new_values = {c.name: getattr(updated_ticket_db, c.name) for c in updated_ticket_db.__table__.columns}
+            # Identify changes by comparing old and new values
+            changes = {k: {"old": str(old_values[k]), "new": str(new_values[k])} for k, v in new_values.items() if old_values[k] != new_values[k]}
+            
+            # Summarize the changed fields for the audit log detail
+            summary_of_changes = list(changes.keys())
+            if 'actualizado_en' in summary_of_changes:
+                summary_of_changes.remove('actualizado_en') # Exclude 'actualizado_en' as it changes on every update
+
+            if summary_of_changes: # Only log if there are actual changes
+                audit_log_data = AuditLogBase(
+                    entidad="Ticket",
+                    entidad_id=updated_ticket_db.id,
+                    actor_id=current_user.id,
+                    accion="Actualización de Ticket",
+                    detalle=json.dumps({"cambios": changes})
                 )
-                db.add(evidence)
-                db.commit() # Commit after adding each evidence to ensure it's linked
-                db.refresh(evidence) # Refresh to get the ID
+                audit_log_repository.create(db, obj_in=audit_log_data)
 
-        # Create an audit log entry if there were significant changes
-        new_values = {c.name: getattr(updated_ticket_db, c.name) for c in updated_ticket_db.__table__.columns}
-        # Identify changes by comparing old and new values
-        changes = {k: {"old": str(old_values[k]), "new": str(new_values[k])} for k, v in new_values.items() if old_values[k] != new_values[k]}
-        
-        # Summarize the changed fields for the audit log detail
-        summary_of_changes = list(changes.keys())
-        if 'actualizado_en' in summary_of_changes:
-            summary_of_changes.remove('actualizado_en') # Exclude 'actualizado_en' as it changes on every update
-
-        if summary_of_changes: # Only log if there are actual changes
-            audit_log_data = AuditLogBase(
-                entidad="Ticket",
-                entidad_id=updated_ticket_db.id,
-                actor_id=current_user.id,
-                accion="Actualización de Ticket",
-                detalle=json.dumps({"cambios": changes})
+            # Retrieve the full updated ticket details
+            full_ticket = self.get_ticket(db, ticket_id=updated_ticket_db.id, current_user_id=current_user.id)
+            
+            # Broadcast the updated ticket information via WebSocket for real-time updates
+            if full_ticket:
+                import asyncio
+                asyncio.create_task(manager.broadcast(full_ticket.json()))
+            return full_ticket
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"An unexpected error occurred in update_ticket: {e}"
             )
-            audit_log_repository.create(db, obj_in=audit_log_data)
-
-        # Retrieve the full updated ticket details
-        full_ticket = self.get_ticket(db, ticket_id=updated_ticket_db.id, current_user_id=current_user.id)
-        
-        # Broadcast the updated ticket information via WebSocket for real-time updates
-        if full_ticket:
-            import asyncio
-            asyncio.create_task(manager.broadcast(full_ticket.json()))
-        return full_ticket
 
     def delete_ticket(self, db: Session, ticket_id: int, current_user_id: int) -> Optional[TicketInDB]:
         # Retrieve the ticket to be deleted to include its summary in the audit log

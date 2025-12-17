@@ -7,13 +7,8 @@ const RelevamientosForm = () => {
   const [area, setArea] = useState('');
   const [motivo, setMotivo] = useState('');
   const [observaciones, setObservaciones] = useState('');
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setError('');
 
     const form_data = {
       area_a_relevar: area,
@@ -27,17 +22,14 @@ const RelevamientosForm = () => {
     };
 
     try {
-      const response = await apiFetch('/forms/submit', {
+      await apiFetch('/forms/submit', {
         method: 'POST',
         body: JSON.stringify(payload),
       });
       alert('¡Formulario enviado con éxito!');
       navigate('/');
     } catch (err) {
-      setError(`Error al enviar el formulario: ${err.message}`);
       alert(`Error al enviar el formulario: ${err.message}`);
-    } finally {
-      setSubmitting(false);
     }
   };
 
