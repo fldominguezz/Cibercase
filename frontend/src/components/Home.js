@@ -162,7 +162,7 @@ const Home = () => {
 
   // Definir estados y severidades para los dropdowns
   const TICKET_STATUSES = ['Nuevo', 'En Progreso', 'Resuelto', 'Cerrado', 'Pendiente'];
-  const TICKET_SEVERITIES = ['Baja', 'Media', 'Alta', 'Crítica', 'Desconocida'];
+
 
   // State for 'All Tickets' pagination
   const [totalAllTickets, setTotalAllTickets] = useState(0);
@@ -971,8 +971,7 @@ const Home = () => {
                                     )}
                                   </>
                                 )}
-                              </td>
-                            </tr>
+                              </td>                            </tr>
                           )) 
                         ) : (
                           <tr>
