@@ -1,22 +1,34 @@
 import os
 import sys
 import xml.etree.ElementTree as ET
-from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, ForeignKey, Boolean
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+    Text,
+    DateTime,
+    ForeignKey,
+    Boolean,
+)
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 import pytz
 
 # --- Database Configuration (copied from backend/core/config.py) ---
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@db:5432/ticketing_db")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://user:password@db:5432/ticketing_db"
+)
 
 # --- Timezone Configuration (copied from backend/core/config.py) ---
-ARGENTINA_TIMEZONE = pytz.timezone('America/Argentina/Buenos_Aires')
+ARGENTINA_TIMEZONE = pytz.timezone("America/Argentina/Buenos_Aires")
 
 # --- SQLAlchemy Setup (simplified from backend/db/base.py and backend/db/session.py) ---
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 # --- Database Models (simplified from backend/db/models.py for Ticket) ---
 class Ticket(Base):
@@ -43,6 +55,7 @@ class Ticket(Base):
     actualizado_en = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     cerrado_en = Column(DateTime, nullable=True)
 
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -61,22 +74,22 @@ def parse_fortisiem_xml(xml_string: str):
     """
     try:
         root = ET.fromstring(xml_string)
-        
-        incident_id = root.get('incidentId', 'N/A')
-        severity = root.get('severity', 'N/A')
-        rule_name = root.findtext('name', 'N/A')
-        description = root.findtext('description', 'No description provided.')
-        remediation = root.findtext('remediation', '')
-        incident_category = root.findtext('incidentCategory', 'N/A')
-        
-        source_ip = 'N/A'
-        source_host = 'N/A'
-        incident_target = root.find('incidentTarget')
+
+        incident_id = root.get("incidentId", "N/A")
+        severity = root.get("severity", "N/A")
+        rule_name = root.findtext("name", "N/A")
+        description = root.findtext("description", "No description provided.")
+        remediation = root.findtext("remediation", "")
+        incident_category = root.findtext("incidentCategory", "N/A")
+
+        source_ip = "N/A"
+        source_host = "N/A"
+        incident_target = root.find("incidentTarget")
         if incident_target is not None:
-            for entry in incident_target.findall('entry'):
-                if entry.get('name') == 'Host IP':
+            for entry in incident_target.findall("entry"):
+                if entry.get("name") == "Host IP":
                     source_ip = entry.text
-                elif entry.get('name') == 'Host Name':
+                elif entry.get("name") == "Host Name":
                     source_host = entry.text
 
         return {
@@ -88,11 +101,12 @@ def parse_fortisiem_xml(xml_string: str):
             "incident_category": incident_category,
             "description": description,
             "remediation": remediation,
-            "raw_log": xml_string
+            "raw_log": xml_string,
         }
     except ET.ParseError as e:
         print(f"Error al parsear XML de FortiSIEM: {e}", file=sys.stderr)
-        return None # Return None on parse error
+        return None  # Return None on parse error
+
 
 # --- Main Update Logic ---
 def update_all_tickets_from_raw_logs():
@@ -106,7 +120,10 @@ def update_all_tickets_from_raw_logs():
             if ticket.raw_logs:
                 incident_info = parse_fortisiem_xml(ticket.raw_logs)
                 if incident_info is None:
-                    print(f"Skipping ticket {ticket.id} due to XML parse error in raw_logs.", file=sys.stderr)
+                    print(
+                        f"Skipping ticket {ticket.id} due to XML parse error in raw_logs.",
+                        file=sys.stderr,
+                    )
                     continue
 
                 # Construct the detailed description
@@ -122,7 +139,7 @@ def update_all_tickets_from_raw_logs():
                 )
 
                 # Map severity number to a severity name for the ticket
-                severity_num = int(incident_info.get('severity_num', 0))
+                severity_num = int(incident_info.get("severity_num", 0))
                 if severity_num >= 7:
                     severity_name = "Crítica"
                 elif severity_num >= 5:
@@ -132,18 +149,20 @@ def update_all_tickets_from_raw_logs():
                 else:
                     severity_name = "Baja"
 
-                ticket.resumen = incident_info['rule_name']
+                ticket.resumen = incident_info["rule_name"]
                 ticket.descripcion = detailed_description
                 ticket.severidad = severity_name
-                ticket.categoria = incident_info['incident_category']
-                ticket.rule_name = incident_info['rule_name']
-                ticket.rule_description = incident_info['description']
-                ticket.rule_remediation = incident_info['remediation']
-                
+                ticket.categoria = incident_info["incident_category"]
+                ticket.rule_name = incident_info["rule_name"]
+                ticket.rule_description = incident_info["description"]
+                ticket.rule_remediation = incident_info["remediation"]
+
                 updated_count += 1
                 print(f"Updated ticket {ticket.id} (UID: {ticket.ticket_uid})")
             else:
-                print(f"Skipping ticket {ticket.id} (UID: {ticket.ticket_uid}) - No raw_logs found.")
+                print(
+                    f"Skipping ticket {ticket.id} (UID: {ticket.ticket_uid}) - No raw_logs found."
+                )
 
         db.commit()
         print(f"Successfully updated {updated_count} tickets.")
@@ -152,6 +171,7 @@ def update_all_tickets_from_raw_logs():
         print(f"An error occurred during ticket update: {e}", file=sys.stderr)
     finally:
         db.close()
+
 
 if __name__ == "__main__":
     print("Starting ticket update script...")

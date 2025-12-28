@@ -12,11 +12,13 @@ if not DATABASE_URL:
 # This will invalidate all JWTs from previous sessions upon restart.
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
-    print("WARNING: SECRET_KEY not found in environment. Generating a temporary one. All user sessions will be invalidated on restart.")
+    print(
+        "WARNING: SECRET_KEY not found in environment. Generating a temporary one. All user sessions will be invalidated on restart."
+    )
     SECRET_KEY = token_hex(32)
-    
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
 # Define Argentina timezone
-ARGENTINA_TIMEZONE = pytz.timezone('America/Argentina/Buenos_Aires')
+ARGENTINA_TIMEZONE = pytz.timezone("America/Argentina/Buenos_Aires")

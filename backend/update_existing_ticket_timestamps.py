@@ -1,21 +1,25 @@
 import os
-import sys
 from datetime import datetime, timedelta, timezone
 import re
 import logging
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from db.models import Ticket # Asegúrate de que la ruta de importación sea correcta
+from db.models import Ticket  # Asegúrate de que la ruta de importación sea correcta
 
 # Configuración de logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Configuración de la base de datos
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@db:5432/mydatabase")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://user:password@db:5432/mydatabase"
+)
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 def parse_datetime_from_raw_log(raw_log_content: str):
     """
@@ -36,14 +40,17 @@ def parse_datetime_from_raw_log(raw_log_content: str):
         try:
             combined_datetime_str = f"{event_date} {event_time}"
             naive_dt = datetime.strptime(combined_datetime_str, "%Y-%m-%d %H:%M:%S")
-            
+
             # Convertir de GMT-3 a UTC sumando 3 horas
             utc_dt = naive_dt + timedelta(hours=3)
             return utc_dt.replace(tzinfo=timezone.utc)
         except ValueError as e:
-            logger.warning(f"Error al parsear fecha/hora '{combined_datetime_str}' del raw log: {e}")
+            logger.warning(
+                f"Error al parsear fecha/hora '{combined_datetime_str}' del raw log: {e}"
+            )
             return None
     return None
+
 
 def update_existing_ticket_timestamps():
     """
@@ -54,28 +61,39 @@ def update_existing_ticket_timestamps():
     updated_count = 0
     try:
         tickets_to_update = db.query(Ticket).filter(Ticket.raw_logs.isnot(None)).all()
-        logger.info(f"Encontrados {len(tickets_to_update)} tickets con raw_logs para procesar.")
+        logger.info(
+            f"Encontrados {len(tickets_to_update)} tickets con raw_logs para procesar."
+        )
 
         for ticket in tickets_to_update:
             new_created_at = parse_datetime_from_raw_log(ticket.raw_logs)
             if new_created_at:
                 if ticket.creado_en != new_created_at:
-                    logger.info(f"Actualizando ticket {ticket.id} (UID: {ticket.ticket_uid}): creado_en de {ticket.creado_en} a {new_created_at}")
+                    logger.info(
+                        f"Actualizando ticket {ticket.id} (UID: {ticket.ticket_uid}): creado_en de {ticket.creado_en} a {new_created_at}"
+                    )
                     ticket.creado_en = new_created_at
                     updated_count += 1
                 else:
-                    logger.info(f"Ticket {ticket.id} (UID: {ticket.ticket_uid}) ya tiene la fecha correcta.")
+                    logger.info(
+                        f"Ticket {ticket.id} (UID: {ticket.ticket_uid}) ya tiene la fecha correcta."
+                    )
             else:
-                logger.warning(f"No se pudo extraer fecha/hora del raw_log para el ticket {ticket.id} (UID: {ticket.ticket_uid}).")
-        
+                logger.warning(
+                    f"No se pudo extraer fecha/hora del raw_log para el ticket {ticket.id} (UID: {ticket.ticket_uid})."
+                )
+
         db.commit()
         logger.info(f"Proceso completado. {updated_count} tickets actualizados.")
 
     except Exception as e:
         db.rollback()
-        logger.error(f"Error durante la actualización de timestamps: {e}", exc_info=True)
+        logger.error(
+            f"Error durante la actualización de timestamps: {e}", exc_info=True
+        )
     finally:
         db.close()
+
 
 if __name__ == "__main__":
     logger.info("Iniciando script de actualización de timestamps de tickets...")

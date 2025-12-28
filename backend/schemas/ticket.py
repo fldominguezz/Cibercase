@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import Optional, List, Dict
 from datetime import datetime
 import pytz
@@ -6,13 +6,14 @@ import pytz
 # Define UTC timezone
 UTC_TIMEZONE = pytz.utc
 
+
 # Custom datetime encoder for Pydantic models to ensure UTC with 'Z' suffix
 def convert_to_utc_iso_z(dt: datetime) -> str:
-    if dt.tzinfo is None: # Naive datetime, assume it's already UTC
+    if dt.tzinfo is None:  # Naive datetime, assume it's already UTC
         utc_dt = pytz.utc.localize(dt)
     else:
         utc_dt = dt.astimezone(pytz.utc)
-    return utc_dt.isoformat(timespec='microseconds').replace('+00:00', 'Z')
+    return utc_dt.isoformat(timespec="microseconds").replace("+00:00", "Z")
 
 
 class TicketBase(BaseModel):
@@ -32,10 +33,12 @@ class TicketBase(BaseModel):
     rule_description: Optional[str] = None
     rule_remediation: Optional[str] = None
     raw_logs: Optional[str] = None
-    creado_en: Optional[datetime] = None # Add creado_en here
+    creado_en: Optional[datetime] = None  # Add creado_en here
+
 
 class TicketCreate(TicketBase):
     pass
+
 
 class TicketUpdate(BaseModel):
     estado: Optional[str] = None
@@ -56,6 +59,7 @@ class TicketUpdate(BaseModel):
     raw_logs: Optional[str] = None
     creado_en: Optional[datetime] = None
 
+
 class TicketInDB(TicketBase):
     id: int
     ticket_uid: str
@@ -72,9 +76,8 @@ class TicketInDB(TicketBase):
 
     class Config:
         orm_mode = True
-        json_encoders = {
-            datetime: convert_to_utc_iso_z
-        }
+        json_encoders = {datetime: convert_to_utc_iso_z}
+
 
 class PaginatedTicketResponse(BaseModel):
     total_count: int

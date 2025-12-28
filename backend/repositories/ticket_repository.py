@@ -6,14 +6,21 @@ from db.base import BaseRepository
 from db.models import Ticket, User, Alert, Evidence
 from schemas.ticket import TicketCreate, TicketUpdate
 
-from sqlalchemy import or_ # Import or_ for search functionality
+from sqlalchemy import or_  # Import or_ for search functionality
+
 
 class TicketRepository(BaseRepository[Ticket, TicketCreate, TicketUpdate]):
-    def create_with_owner(self, db: Session, *, obj_in: TicketCreate, current_user_id: Optional[int] = None) -> Ticket:
+    def create_with_owner(
+        self,
+        db: Session,
+        *,
+        obj_in: TicketCreate,
+        current_user_id: Optional[int] = None,
+    ) -> Ticket:
         ticket_uid = f"TCK-{datetime.utcnow().strftime('%Y')}-{db.query(self.model).count() + 1:06d}"
-        
+
         ticket_data_dict = obj_in.dict(exclude_unset=True)
-        
+
         db_obj = self.model(**ticket_data_dict, ticket_uid=ticket_uid)
         db.add(db_obj)
         db.commit()
@@ -41,7 +48,7 @@ class TicketRepository(BaseRepository[Ticket, TicketCreate, TicketUpdate]):
 
         if status:
             query = query.filter(self.model.estado == status)
-        
+
         if assigned_to_me_id is not None:
             query = query.filter(self.model.asignado_a_id == assigned_to_me_id)
 
@@ -55,16 +62,18 @@ class TicketRepository(BaseRepository[Ticket, TicketCreate, TicketUpdate]):
             query = query.filter(self.model.categoria == category)
 
         if search:
-            query = query.filter(or_(
-                self.model.resumen.ilike(f"%{search}%"),
-                self.model.descripcion.ilike(f"%{search}%"),
-                self.model.ticket_uid.ilike(f"%{search}%"),
-                self.model.rule_name.ilike(f"%{search}%"),
-                self.model.rule_description.ilike(f"%{search}%"),
-                self.model.rule_remediation.ilike(f"%{search}%"),
-                self.model.raw_logs.ilike(f"%{search}%"),
-            ))
-        
+            query = query.filter(
+                or_(
+                    self.model.resumen.ilike(f"%{search}%"),
+                    self.model.descripcion.ilike(f"%{search}%"),
+                    self.model.ticket_uid.ilike(f"%{search}%"),
+                    self.model.rule_name.ilike(f"%{search}%"),
+                    self.model.rule_description.ilike(f"%{search}%"),
+                    self.model.rule_remediation.ilike(f"%{search}%"),
+                    self.model.raw_logs.ilike(f"%{search}%"),
+                )
+            )
+
         if reportado_por_id is not None:
             query = query.filter(self.model.reportado_por_id == reportado_por_id)
 
@@ -90,20 +99,22 @@ class TicketRepository(BaseRepository[Ticket, TicketCreate, TicketUpdate]):
         else:
             query = query.order_by(self.model.id.desc())
 
-        final_query = query.join(User, self.model.reportado_por_id == User.id, isouter=True).add_columns(
-            User.first_name,
-            User.last_name,
-            self.model.raw_logs
-        ).offset(skip).limit(limit)
-        
+        final_query = (
+            query.join(User, self.model.reportado_por_id == User.id, isouter=True)
+            .add_columns(User.first_name, User.last_name, self.model.raw_logs)
+            .offset(skip)
+            .limit(limit)
+        )
+
         return final_query.all(), total_count
 
     def get_ticket_with_details(self, db: Session, ticket_id: int):
-        return db.query(
-            self.model,
-            User.first_name,
-            User.last_name
-        ).outerjoin(User, self.model.reportado_por_id == User.id).filter(self.model.id == ticket_id).first()
+        return (
+            db.query(self.model, User.first_name, User.last_name)
+            .outerjoin(User, self.model.reportado_por_id == User.id)
+            .filter(self.model.id == ticket_id)
+            .first()
+        )
 
     def get_evidence_for_ticket(self, db: Session, ticket_id: int) -> List[Evidence]:
         return db.query(Evidence).filter(Evidence.ticket_id == ticket_id).all()
@@ -111,5 +122,5 @@ class TicketRepository(BaseRepository[Ticket, TicketCreate, TicketUpdate]):
     def get_alert_for_ticket(self, db: Session, ticket_id: int) -> Optional[Alert]:
         return db.query(Alert).filter(Alert.ticket_id == ticket_id).first()
 
-ticket_repository = TicketRepository(Ticket)
 
+ticket_repository = TicketRepository(Ticket)

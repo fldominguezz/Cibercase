@@ -133,45 +133,9 @@ export const readFormSubmissions = async () => {
     return apiFetch('/forms/submissions/');
 };
 
-// New reporting functions
-export const fetchTotalTicketsCount = async () => {
-    return apiFetch('/reports/total_tickets_count');
-};
-
-export const fetchMyAssignedTicketsCount = async () => {
-    return apiFetch('/reports/my_assigned_tickets_count');
-};
-
-export const fetchTicketCountsByStatus = async () => {
-    return apiFetch('/reports/ticket_counts_by_status');
-};
-
-export const fetchTicketCountsBySeverity = async () => {
-    return apiFetch('/reports/ticket_counts_by_severity');
-};
-
-export const fetchTicketCountsByCategory = async () => {
-    return apiFetch('/reports/ticket_counts_by_category');
-};
-
-export const fetchWeeklyTicketEvolution = async () => {
-    return apiFetch('/reports/weekly_ticket_evolution');
-};
-
-export const fetchMonthlyTicketEvolution = async () => {
-    return apiFetch('/reports/monthly_ticket_evolution');
-};
-
-export const fetchAvgResolutionTime = async () => {
-    return apiFetch('/reports/avg_resolution_time');
-};
-
-export const fetchAvgResponseTime = async () => {
-    return apiFetch('/reports/avg_response_time');
-};
-
-export const fetchTopRecurring = async () => {
-    return apiFetch('/reports/top_recurring');
+// New consolidated dashboard stats function
+export const fetchDashboardStats = async () => {
+    return apiFetch('/dashboard/stats');
 };
 
 export const getTicketComments = async (ticketId) => {

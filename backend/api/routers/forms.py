@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 import json
 from sqlalchemy.orm import Session
-from typing import Dict, Any, List
+from typing import List
 from datetime import datetime, timezone
 
-from schemas.form import FormSubmit, FormTemplate, FormSubmissionOut
-from schemas.ticket import TicketCreate
-from services.ticket_service import ticket_service
+from schemas.form import FormSubmit, FormTemplate
 from api.deps import get_db, get_current_user
 from db.models import User
 from repositories.form_repository import form_repository
@@ -27,8 +25,8 @@ form_templates_db = [
             "categoria": "Instalaciones",
             "impacto": "Bajo",
             "causa_raiz": "Nueva adquisición de equipo",
-            "asignado_a_id": None # Se asignará manualmente o por otra lógica
-        }
+            "asignado_a_id": None,  # Se asignará manualmente o por otra lógica
+        },
     },
     {
         "id": 2,
@@ -42,8 +40,8 @@ form_templates_db = [
             "categoria": "Auditoría",
             "impacto": "Medio",
             "causa_raiz": "Auditoría programada",
-            "asignado_a_id": None
-        }
+            "asignado_a_id": None,
+        },
     },
     {
         "id": 3,
@@ -57,8 +55,8 @@ form_templates_db = [
             "categoria": "Gestión de Riesgos",
             "impacto": "Alto",
             "causa_raiz": "Requerimiento de negocio específico",
-            "asignado_a_id": None
-        }
+            "asignado_a_id": None,
+        },
     },
     {
         "id": 4,
@@ -72,33 +70,34 @@ form_templates_db = [
             "categoria": "Gestión de Vulnerabilidades",
             "impacto": "Medio",
             "causa_raiz": "Solicitud proactiva de seguridad",
-            "asignado_a_id": None
-        }
-    }
+            "asignado_a_id": None,
+        },
+    },
 ]
+
 
 @router.get("/templates/", response_model=List[FormTemplate])
 def read_form_templates(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     """
     Retrieve a list of form templates.
     """
     return form_templates_db
 
+
 @router.get("/submissions/")
 def read_form_submissions(
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     Retrieve a list of form submissions.
     """
     submissions = form_repository.list_submissions(db=db, skip=skip, limit=limit)
-    
+
     # Manual serialization to bypass Pydantic issues
     results = []
     for sub in submissions:
@@ -109,37 +108,51 @@ def read_form_submissions(
         except json.JSONDecodeError:
             form_data = {"error": "Failed to decode JSON data."}
 
-        results.append({
-            "id": sub.id,
-            "enviado_en": sub.enviado_en,
-            "form_data": form_data,
-            "template": {
-                "nombre": sub.template.nombre if sub.template else "Formulario Genérico"
-            },
-            "enviado_por": {
-                "first_name": sub.enviado_por.first_name if sub.enviado_por else "Usuario",
-                "last_name": sub.enviado_por.last_name if sub.enviado_por else "Desconocido"
+        results.append(
+            {
+                "id": sub.id,
+                "enviado_en": sub.enviado_en,
+                "form_data": form_data,
+                "template": {
+                    "nombre": (
+                        sub.template.nombre if sub.template else "Formulario Genérico"
+                    )
+                },
+                "enviado_por": {
+                    "first_name": (
+                        sub.enviado_por.first_name if sub.enviado_por else "Usuario"
+                    ),
+                    "last_name": (
+                        sub.enviado_por.last_name if sub.enviado_por else "Desconocido"
+                    ),
+                },
             }
-        })
+        )
     return results
+
 
 @router.post("/submit")
 async def submit_form(
     *,
     db: Session = Depends(get_db),
     form_in: FormSubmit,
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     """
     Submit a form and save it as a submission. Does not create a ticket.
     """
     try:
         # Now that template_id is nullable, we can always create a submission.
-        submission = form_repository.create_submission(db=db, form_in=form_in, user_id=current_user.id)
-        return {"message": "Form submitted successfully", "submission_id": submission.id}
+        submission = form_repository.create_submission(
+            db=db, form_in=form_in, user_id=current_user.id
+        )
+        return {
+            "message": "Form submitted successfully",
+            "submission_id": submission.id,
+        }
     except Exception as e:
         # A more specific log would be good here, but for now, re-raise.
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to submit form: {str(e)}"
+            detail=f"Failed to submit form: {str(e)}",
         )

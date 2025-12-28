@@ -5,16 +5,8 @@ import { motion } from 'framer-motion'; // Import framer-motion
 import {
   apiFetch,
   readTickets,
-  readFormSubmissions, // Replaced readFormTemplates
-  fetchTotalTicketsCount,
-  fetchMyAssignedTicketsCount,
-  fetchTicketCountsByStatus,
-  fetchTicketCountsBySeverity,
-  fetchTicketCountsByCategory,
-  fetchMonthlyTicketEvolution,
-  fetchAvgResolutionTime,
-  fetchAvgResponseTime,
-  fetchTopRecurring,
+  readFormSubmissions,
+  fetchDashboardStats, // Consolidated endpoint
   remediateTicket
 } from '../api';
 import DashboardSkeleton from './Dashboard/DashboardSkeleton'; // Import the skeleton component
@@ -169,82 +161,113 @@ const Home = () => {
   const [allTicketsCurrentPage, setAllTicketsCurrentPage] = useState(1);
   const [allTicketsPageSize, setAllTicketsPageSize] = useState(20);
 
+  // Pagination state for 'Created by Me' tickets
+  const [totalCreatedTickets, setTotalCreatedTickets] = useState(0);
+  const [createdTicketsCurrentPage, setCreatedTicketsCurrentPage] = useState(1);
+  const [createdTicketsPageSize, setCreatedTicketsPageSize] = useState(10);
+  const [loadingCreated, setLoadingCreated] = useState(false);
+
+  // Pagination state for 'Assigned to Me' tickets
+  const [totalAssignedTickets, setTotalAssignedTickets] = useState(0);
+  const [assignedTicketsCurrentPage, setAssignedTicketsCurrentPage] = useState(1);
+  const [assignedTicketsPageSize, setAssignedTicketsPageSize] = useState(10);
+  const [loadingAssigned, setLoadingAssigned] = useState(false);
+
   // Referencias para los elementos canvas de los gráficos
   const statusChartRef = useRef(null);
   const severityChartRef = useRef(null);
   const categoryChartRef = useRef(null);
   const monthlyChartRef = useRef(null);
 
-  const fetchData = useCallback(async () => {
+  const fetchDashboardData = useCallback(async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
     }
-
+    setLoading(true);
     try {
-      const [
-        createdTicketsResponse, 
-        assignedTicketsResponse, 
-        submissions,
-        totalTicketsCount,
-        assignedCount,
-        statusCounts,
-        severityCounts,
-        categoryCounts,
-        monthlyEvoData,
-        avgResTime,
-        avgRespTime,
-        topRecData,
-        users,
-        loggedInUser,
-        birthdayData
-      ] = await Promise.all([
-        readTickets({ createdByMe: true, limit: 9999, sort_by: 'id', sort_order: 'desc' }).catch(err => { console.error("Error fetching created tickets:", err); return { tickets: [], total_count: 0 }; }),
-        readTickets({ assignedToMe: true, limit: 9999, sort_by: 'id', sort_order: 'desc' }).catch(err => { console.error("Error fetching assigned tickets:", err); return { tickets: [], total_count: 0 }; }),
-        readFormSubmissions().catch(err => { console.error("Error fetching form submissions:", err); return []; }),
-        fetchTotalTicketsCount().catch(err => { console.error("Error fetching total tickets count:", err); return 0; }),
-        fetchMyAssignedTicketsCount().catch(err => { console.error("Error fetching my assigned tickets count:", err); return 0; }),
-        fetchTicketCountsByStatus().catch(err => { console.error("Error fetching ticket counts by status:", err); return {}; }),
-        fetchTicketCountsBySeverity().catch(err => { console.error("Error fetching ticket counts by severity:", err); return {}; }),
-        fetchTicketCountsByCategory().catch(err => { console.error("Error fetching ticket counts by category:", err); return {}; }),
-        fetchMonthlyTicketEvolution().catch(err => { console.error("Error fetching monthly evolution:", err); return []; }),
-        fetchAvgResolutionTime().catch(err => { console.error("Error fetching avg resolution time:", err); return { time: 'N/A' }; }),
-        fetchAvgResponseTime().catch(err => { console.error("Error fetching avg response time:", err); return { time: 'N/A' }; }),
-        fetchTopRecurring().catch(err => { console.error("Error fetching top recurring:", err); return []; }),
-        apiFetch('/users/').catch(err => { console.error("Error fetching users:", err); return []; }),
-        apiFetch('/auth/me').catch(err => { console.error("Error fetching current user:", err); return null; }),
-        apiFetch('/users/birthdays/today').catch(err => { console.error("Error fetching birthday users:", err); return []; })
+      const [stats, submissions] = await Promise.all([
+        fetchDashboardStats().catch(err => { console.error("Error fetching dashboard stats:", err); return null; }),
+        readFormSubmissions().catch(err => { console.error("Error fetching form submissions:", err); return []; })
       ]);
 
-      const createdTickets = createdTicketsResponse?.tickets || [];
-      const assignedTickets = assignedTicketsResponse?.tickets || [];
-      setMyCreatedTickets(createdTickets);
-      setMyAssignedTickets(assignedTickets);
+      if (stats) {
+        setTotalTickets(stats.totalTickets);
+        setMyAssignedTicketsCount(stats.myAssignedTicketsCount);
+        setTicketsByStatus(stats.ticketsByStatus);
+        setNewTicketCount(stats.ticketsByStatus['Nuevo'] || 0);
+        setTicketsBySeverity(stats.ticketsBySeverity);
+        setTicketsByCategory(stats.ticketsByCategory);
+        setMonthlyEvolution(stats.monthlyTicketEvolution);
+        setAvgResolutionTime(stats.avgResolutionTime.time || 'N/A');
+        setAvgResponseTime(stats.avgResponseTime.time || 'N/A');
+        setTopRecurring(stats.topRecurring);
+        setAllUsers(stats.allUsers);
+        setCurrentUser(stats.currentUser);
+        setBirthdayUsers(stats.birthdayUsers);
+      }
+      
       setFormSubmissions(submissions);
-      setTotalTickets(totalTicketsCount);
-      setMyAssignedTicketsCount(assignedCount);
-      setTicketsByStatus(statusCounts);
-      setNewTicketCount(statusCounts['Nuevo'] || 0);
-      setTicketsBySeverity(severityCounts);
-      setTicketsByCategory(categoryCounts);
-      setMonthlyEvolution(monthlyEvoData); // Changed from setWeeklyEvolution
-      setAvgResolutionTime(avgResTime.time);
-      setAvgResponseTime(avgRespTime.time);
-      setTopRecurring(topRecData);
-      setAllUsers(users); // Set all users
-      setCurrentUser(loggedInUser); // Set current user
-      setBirthdayUsers(birthdayData); // Set birthday users
+
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false); // Set loading to false once all data is fetched
+      setLoading(false);
     }
   }, [navigate]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchDashboardData();
+  }, [fetchDashboardData]);
+
+  // Effect for fetching tickets based on the active tab
+  useEffect(() => {
+    const fetchTabTickets = async () => {
+      try {
+        const baseParams = {
+          sort_by: 'id',
+          sort_order: 'desc',
+        };
+
+        if (activeTab === 'total') {
+          const skip = (allTicketsCurrentPage - 1) * allTicketsPageSize;
+          const { tickets, total_count } = await readTickets({ ...baseParams, skip, limit: allTicketsPageSize, start_date: startDate, end_date: endDate });
+          setAllTickets(tickets);
+          setTotalAllTickets(total_count);
+        } else if (activeTab === 'created') {
+          setLoadingCreated(true);
+          const skip = (createdTicketsCurrentPage - 1) * createdTicketsPageSize;
+          const { tickets, total_count } = await readTickets({ ...baseParams, createdByMe: true, skip, limit: createdTicketsPageSize });
+          setMyCreatedTickets(tickets);
+          setTotalCreatedTickets(total_count);
+          setLoadingCreated(false);
+        } else if (activeTab === 'assigned') {
+          setLoadingAssigned(true);
+          const skip = (assignedTicketsCurrentPage - 1) * assignedTicketsPageSize;
+          const { tickets, total_count } = await readTickets({ ...baseParams, assignedToMe: true, skip, limit: assignedTicketsPageSize });
+          setMyAssignedTickets(tickets);
+          setTotalAssignedTickets(total_count);
+          setLoadingAssigned(false);
+        }
+      } catch (err) {
+        setError(`Error fetching tickets for tab ${activeTab}: ${err.message}`);
+        if (activeTab === 'created') setLoadingCreated(false);
+        if (activeTab === 'assigned') setLoadingAssigned(false);
+      }
+    };
+
+    if (!loading) { // Only fetch tab tickets if initial dashboard data is loaded
+      fetchTabTickets();
+    }
+  }, [
+    activeTab, 
+    loading,
+    allTicketsCurrentPage, allTicketsPageSize,
+    createdTicketsCurrentPage, createdTicketsPageSize,
+    assignedTicketsCurrentPage, assignedTicketsPageSize,
+    startDate, endDate
+  ]);
 
   useEffect(() => {
     // Ensure dark mode class is applied when Home component mounts
@@ -257,10 +280,10 @@ const Home = () => {
     }
   }); // No dependency array, runs on every render
 
-  // Effect for fetching paginated 'All Tickets'
+  // Effect for fetching paginated 'All Tickets' - THIS IS NOW REPLACED BY THE `useEffect` above
+  /*
   useEffect(() => {
     const fetchPaginatedAllTickets = async () => {
-      // setLoading(true); // Moved to fetchData for overall dashboard loading
       try {
         const skip = (allTicketsCurrentPage - 1) * allTicketsPageSize;
         const limit = allTicketsPageSize;
@@ -269,15 +292,14 @@ const Home = () => {
         setTotalAllTickets(total_count);
       } catch (err) {
         setError(err.message);
-      } finally {
-        // setLoading(false); // Moved to fetchData
       }
     };
 
-    if (!loading) { // Only fetch paginated tickets if overall dashboard loading is complete
+    if (!loading && activeTab === 'total') { // Only fetch if this tab is active
       fetchPaginatedAllTickets();
     }
-  }, [allTicketsCurrentPage, allTicketsPageSize, startDate, endDate, loading]);
+  }, [allTicketsCurrentPage, allTicketsPageSize, startDate, endDate, loading, activeTab]);
+  */
 
   // Effect for handling real-time updates from WebSocket
   useEffect(() => {
@@ -566,7 +588,7 @@ const Home = () => {
           CHART_COLORS.teal
         ],
       };
-      createDoughnutChart(statusChartRef, statusChartData.labels, statusChartData.data, statusChartData.colors, totalTickets, newTicketCount, null, titleColor);
+      createDoughnutChart(statusChartRef, statusChartData.labels, statusChartData.data, statusChartData.colors, totalTickets, 0, null, titleColor);
 
       // Handler para el click en el gráfico de severidad
       const handleSeverityClick = (severity) => {
@@ -600,7 +622,7 @@ const Home = () => {
         data: orderedSeverityData,
         colors: orderedSeverityBackgroundColors,
       };
-      createDoughnutChart(severityChartRef, severityChartData.labels, severityChartData.data, severityChartData.colors, totalTickets, newTicketCount, handleSeverityClick, titleColor);
+      createDoughnutChart(severityChartRef, severityChartData.labels, severityChartData.data, severityChartData.colors, totalTickets, 0, handleSeverityClick, titleColor);
 
       // Data for Category Bar Chart
       const categoryChartData = {
@@ -1016,6 +1038,9 @@ const Home = () => {
               <div className="ticket-list-card card mb-4"> {/* Añadir clase 'card' para estilo consistente */}
                   <h5 className="card-title">Tickets Creados por Mí</h5>
                   <div className="table-responsive">
+                    {loadingCreated ? (
+                      <div className="text-center p-5"><strong>Cargando tickets...</strong></div>
+                    ) : (
                     <table className="table table-hover">
                       <thead className="">
                         <tr>
@@ -1062,6 +1087,32 @@ const Home = () => {
                         )}
                       </tbody>
                     </table>
+                    )}
+                  </div>
+                  {/* Pagination Controls for Created Tickets */}
+                  <div className="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                      <select className="form-select form-select-sm" value={createdTicketsPageSize} onChange={(e) => { setCreatedTicketsPageSize(Number(e.target.value)); setCreatedTicketsCurrentPage(1); }} style={{ width: 'auto' }}>
+                        <option value={10}>10 por página</option>
+                        <option value={20}>20 por página</option>
+                        <option value={50}>50 por página</option>
+                      </select>
+                    </div>
+                    <nav>
+                      <ul className="pagination pagination-sm mb-0">
+                        <li className={`page-item ${createdTicketsCurrentPage === 1 ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={() => setCreatedTicketsCurrentPage(prev => prev - 1)}>Anterior</button>
+                        </li>
+                        <li className="page-item disabled">
+                          <span className="page-link">
+                            Página {createdTicketsCurrentPage} de {Math.ceil(totalCreatedTickets / createdTicketsPageSize)}
+                          </span>
+                        </li>
+                        <li className={`page-item ${createdTicketsCurrentPage >= Math.ceil(totalCreatedTickets / createdTicketsPageSize) ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={() => setCreatedTicketsCurrentPage(prev => prev + 1)}>Siguiente</button>
+                        </li>
+                      </ul>
+                    </nav>
                   </div>
               </div>
             )}
@@ -1072,6 +1123,9 @@ const Home = () => {
               <div className="ticket-list-card card mb-4"> {/* Añadir clase 'card' para estilo consistente */}
                   <h5 className="card-title">Tickets Asignados a Mí</h5>
                   <div className="table-responsive">
+                    {loadingAssigned ? (
+                      <div className="text-center p-5"><strong>Cargando tickets...</strong></div>
+                    ) : (
                     <table className="table table-hover">
                       <thead className="">
                         <tr>
@@ -1118,6 +1172,32 @@ const Home = () => {
                         )}
                       </tbody>
                     </table>
+                    )}
+                  </div>
+                   {/* Pagination Controls for Assigned Tickets */}
+                   <div className="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                      <select className="form-select form-select-sm" value={assignedTicketsPageSize} onChange={(e) => { setAssignedTicketsPageSize(Number(e.target.value)); setAssignedTicketsCurrentPage(1); }} style={{ width: 'auto' }}>
+                        <option value={10}>10 por página</option>
+                        <option value={20}>20 por página</option>
+                        <option value={50}>50 por página</option>
+                      </select>
+                    </div>
+                    <nav>
+                      <ul className="pagination pagination-sm mb-0">
+                        <li className={`page-item ${assignedTicketsCurrentPage === 1 ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={() => setAssignedTicketsCurrentPage(prev => prev - 1)}>Anterior</button>
+                        </li>
+                        <li className="page-item disabled">
+                          <span className="page-link">
+                            Página {assignedTicketsCurrentPage} de {Math.ceil(totalAssignedTickets / assignedTicketsPageSize)}
+                          </span>
+                        </li>
+                        <li className={`page-item ${assignedTicketsCurrentPage >= Math.ceil(totalAssignedTickets / assignedTicketsPageSize) ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={() => setAssignedTicketsCurrentPage(prev => prev + 1)}>Siguiente</button>
+                        </li>
+                      </ul>
+                    </nav>
                   </div>
               </div>
             )}

@@ -16,6 +16,7 @@ from db.models import User as DBUser
 
 router = APIRouter()
 
+
 @router.post("/login", response_model=Token)
 def login_for_access_token(
     db: Session = Depends(deps.get_db), form_data: OAuth2PasswordRequestForm = Depends()
@@ -23,27 +24,31 @@ def login_for_access_token(
     """
     OAuth2 compatible token login, get an access token for future requests.
     """
-    user = user_service.authenticate(db, email=form_data.username, password=form_data.password)
+    user = user_service.authenticate(
+        db, email=form_data.username, password=form_data.password
+    )
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     # Generate a new session ID and store it
     session_id = str(uuid.uuid4())
     user.session_id = session_id
     db.commit()
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
+
     return {
         "access_token": create_access_token(
-            data={"sub": user.email, "sid": session_id}, expires_delta=access_token_expires
+            data={"sub": user.email, "sid": session_id},
+            expires_delta=access_token_expires,
         ),
         "token_type": "bearer",
     }
+
 
 @router.get("/me", response_model=UserPublic)
 def read_users_me(
@@ -54,6 +59,7 @@ def read_users_me(
     """
     return current_user
 
+
 @router.get("/session-expires")
 def session_expires(
     current_user: DBUser = Depends(deps.get_current_user),
@@ -62,4 +68,6 @@ def session_expires(
     This endpoint is now deprecated as session expiration is handled by the JWT.
     It can be removed in the future.
     """
-    raise HTTPException(status_code=status.HTTP_410_GONE, detail="This endpoint is deprecated.")
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE, detail="This endpoint is deprecated."
+    )
