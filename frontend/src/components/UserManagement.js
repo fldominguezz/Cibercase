@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '../api';
 import EditUserModal from './EditUserModal'; // Import the modal
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserPen, faKey, faTrash, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -102,7 +104,10 @@ const UserManagement = () => {
             {successMessage && <div className="alert alert-success mb-3">{successMessage}</div>}
             
             {!isFormVisible && (
-                <button onClick={() => setIsFormVisible(true)} className="btn btn-primary mb-3">Crear Nuevo Usuario</button>
+                <button onClick={() => setIsFormVisible(true)} className="btn btn-primary mb-3">
+                    <FontAwesomeIcon icon={faUserPlus} className="me-2" />
+                    Crear Nuevo Usuario
+                </button>
             )}
             
             {isFormVisible && (
@@ -249,12 +254,18 @@ const UserManagement = () => {
                                         <td>{user.first_name}</td>
                                         <td>{user.last_name}</td>
                                         <td>{user.email}</td>
-                                        <td>{user.role}</td>
+                                        <td>{user.role.name}</td>
                                         <td>{user.is_active ? 'Sí' : 'No'}</td>
                                         <td>
-                                            <button className="btn btn-sm btn-info me-2" onClick={() => handleEditClick(user)}>Editar</button>
-                                            <button className="btn btn-sm btn-warning me-2" onClick={() => handleResetPassword(user.id)}>Restablecer Contraseña</button>
-                                            <button className="btn btn-sm btn-danger" onClick={() => handleDelete(user.id)}>Eliminar</button>
+                                            <button className="btn btn-sm btn-info me-2" title="Edit" onClick={() => handleEditClick(user)}>
+                                                <FontAwesomeIcon icon={faUserPen} />
+                                            </button>
+                                            <button className="btn btn-sm btn-warning me-2" title="Reset Password" onClick={() => handleResetPassword(user.id)}>
+                                                <FontAwesomeIcon icon={faKey} />
+                                            </button>
+                                            <button className="btn btn-sm btn-danger" title="Delete" onClick={() => handleDelete(user.id)}>
+                                                <FontAwesomeIcon icon={faTrash} />
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}

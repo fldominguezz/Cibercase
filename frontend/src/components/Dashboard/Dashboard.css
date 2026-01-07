@@ -61,9 +61,31 @@
 }
 
 .kpi-label {
-  font-size: 1rem;
-  color: var(--secondary-text-color);
+    font-size: 1rem;
+    color: var(--text-secondary-color);
 }
+
+.status-dot {
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.status-dot.online {
+    background-color: #28a745; /* Green */
+}
+
+.status-dot.offline {
+    background-color: #dc3545; /* Red */
+}
+
+.status-dot.loading {
+    background-color: #ffc107; /* Yellow */
+}
+
 
 .charts-grid {
   display: grid;

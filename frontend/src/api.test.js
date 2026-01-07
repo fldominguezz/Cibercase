@@ -1,7 +1,10 @@
 // frontend/src/api.test.js
 
 // Mock localStorage
-const localStorageMock = (() => {
+// Moved this line here
+
+// Now import api.js
+import { readTickets, apiFetch } from './api'; const localStorageMock = (() => {
   let store = {};
   return {
     getItem: jest.fn(key => store[key] || null),
@@ -10,10 +13,7 @@ const localStorageMock = (() => {
     removeItem: jest.fn(key => { delete store[key]; }),
   };
 })();
-Object.defineProperty(window, 'localStorage', { value: localStorageMock }); // Moved this line here
-
-// Now import api.js
-import { readTickets, apiFetch } from './api'; // Keep apiFetch import for direct testing if needed, but we'll mock global fetch
+Object.defineProperty(window, 'localStorage', { value: localStorageMock }); // Keep apiFetch import for direct testing if needed, but we'll mock global fetch
 
 describe('readTickets', () => {
   const API_BASE_URL = 'https://10.1.9.244/api/v1'; // Re-declare for testing purposes

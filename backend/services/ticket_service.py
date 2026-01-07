@@ -248,7 +248,7 @@ class TicketService:
         Helper method to enforce role-based permissions for updating a ticket.
         Raises HTTPException if the current user does not have permission to perform certain updates.
         """
-        is_admin_or_lider = current_user.role in ["Admin", "Lider"]
+        is_admin_or_lider = current_user.role.name in ["Admin", "Lider"] if current_user.role else False
         if not is_admin_or_lider:
             update_data = ticket_in.dict(exclude_unset=True)
             # Prevent non-admin/lider users from changing ticket status

@@ -7,7 +7,8 @@ import {
   readTickets,
   readFormSubmissions,
   fetchDashboardStats, // Consolidated endpoint
-  remediateTicket
+  remediateTicket,
+  getFortiSIEMStatus
 } from '../api';
 import DashboardSkeleton from './Dashboard/DashboardSkeleton'; // Import the skeleton component
 import './Dashboard/Dashboard.css'; // Importa los estilos del nuevo dashboard
@@ -147,10 +148,24 @@ const Home = () => {
   const [editingTicketId, setEditingTicketId] = useState(null); // State to track which ticket is being edited
   const [editedTicketData, setEditedTicketData] = useState(null); // State to hold edited ticket data
   const [birthdayUsers, setBirthdayUsers] = useState([]); // State for birthday reminder
+  const [fortisiemStatus, setFortisiemStatus] = useState({ status: 'loading', details: '' });
 
   // State for date range filter
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  
+  useEffect(() => {
+    const fetchStatus = async () => {
+        try {
+            const status = await getFortiSIEMStatus();
+            setFortisiemStatus(status);
+        } catch (error) {
+            setFortisiemStatus({ status: 'offline', details: error.message });
+        }
+    };
+    fetchStatus();
+  }, []);
+
 
   // Definir estados y severidades para los dropdowns
   const TICKET_STATUSES = ['Nuevo', 'En Progreso', 'Resuelto', 'Cerrado', 'Pendiente'];
@@ -782,6 +797,13 @@ const Home = () => {
               <div className="kpi-card">
                   <div className="kpi-value">{avgResponseTime}</div>
                   <div className="kpi-label">Tiempo Promedio de Respuesta</div>
+              </div>
+              <div className="kpi-card">
+                <div className={`kpi-value ${fortisiemStatus.status === 'online' ? 'text-success' : 'text-danger'}`}>
+                    <span className={`status-dot ${fortisiemStatus.status}`}></span>
+                    {fortisiemStatus.status}
+                </div>
+                <div className="kpi-label">FortiSIEM Status</div>
               </div>
           </motion.div>
 

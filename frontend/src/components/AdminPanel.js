@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './AdminPanel.css';
 import UserManagement from './UserManagement';
-// import GroupManagement from './GroupManagement';
+import RoleManager from './RoleManager'; // Import RoleManager
 
 const AdminPanel = () => {
     const [activeTab, setActiveTab] = useState('users');
@@ -16,16 +16,16 @@ const AdminPanel = () => {
                 >
                     Gestionar Usuarios
                 </button>
-                {/* <button 
-                    className={`tab-btn ${activeTab === 'groups' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('groups')}
+                <button 
+                    className={`tab-btn ${activeTab === 'roles' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('roles')}
                 >
-                    Gestionar Grupos
-                </button> */}
+                    Gestionar Roles
+                </button>
             </div>
             <div className="admin-content">
                 {activeTab === 'users' && <UserManagement />}
-                {/* {activeTab === 'groups' && <GroupManagement />} */}
+                {activeTab === 'roles' && <RoleManager />}
             </div>
         </div>
     );

@@ -7,11 +7,40 @@ from sqlalchemy import (
     ForeignKey,
     Boolean,
     Date,
+    Table,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .base import Base
 from datetime import datetime
+
+
+# Association Table for Roles and Permissions
+role_permissions = Table('role_permissions', Base.metadata,
+    Column('role_id', Integer, ForeignKey('roles.id'), primary_key=True),
+    Column('permission_id', Integer, ForeignKey('permissions.id'), primary_key=True)
+)
+
+
+class Permission(Base):
+    __tablename__ = "permissions"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), unique=True, nullable=False)
+    description = Column(String(255), nullable=True)
+
+
+class Role(Base):
+    __tablename__ = "roles"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(50), unique=True, nullable=False)
+    description = Column(String(255), nullable=True)
+
+    permissions = relationship(
+        "Permission",
+        secondary=role_permissions,
+        backref="roles"
+    )
+    users = relationship("User", back_populates="role")
 
 
 class User(Base):
@@ -21,7 +50,7 @@ class User(Base):
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     email = Column(String(100), unique=True, nullable=False)
-    role = Column(String(20), nullable=False)  # 'Analista', 'Lider', 'Auditor', 'Admin'
+    role_id = Column(Integer, ForeignKey("roles.id"))
     password_hash = Column(String(255), nullable=False)
     two_fa_secret = Column(String(255))
     is_active = Column(Boolean, default=True)
@@ -30,6 +59,7 @@ class User(Base):
     session_id = Column(String(36), nullable=True)
     date_of_birth = Column(Date, nullable=True)
 
+    role = relationship("Role", back_populates="users")
     comments = relationship("TicketComment", back_populates="owner")
     form_submissions = relationship("FormSubmission", back_populates="enviado_por")
 

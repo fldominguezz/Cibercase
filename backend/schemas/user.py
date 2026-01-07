@@ -4,6 +4,9 @@ from typing import Optional
 from enum import Enum
 from urllib.parse import quote_plus
 
+from .role import Role
+
+
 
 class UserRole(str, Enum):
     analista = "Analista"
@@ -17,7 +20,6 @@ class UserBase(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=50)
     last_name: str = Field(..., min_length=1, max_length=50)
     email: EmailStr
-    role: UserRole  # Use Enum for roles
     date_of_birth: date
     is_active: Optional[bool] = True
     avatar_url: Optional[str] = Field(None, max_length=255)
@@ -25,6 +27,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8, max_length=100)
+    role: UserRole  # Use Enum for roles
 
 
 class UserUpdate(UserBase):
@@ -45,9 +48,9 @@ class UserInDBBase(UserBase):
     id: int
     creado_en: datetime
     date_of_birth: Optional[date]  # Make it optional for existing users in DB
+    role: Role  # Use the Role schema for output
 
     class Config:
-        from_attributes = True
         orm_mode = True
 
 

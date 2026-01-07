@@ -34,6 +34,48 @@ const totalTicketsPlugin = {
 Chart.register(ChartDataLabels);
 Chart.register(totalTicketsPlugin);
 
+// Datos simulados (reemplaza esto con tus llamadas a la API)
+const simulatedData = {
+    kpis: {
+        totalTickets: 305,
+        openTickets: 75,
+        closedTickets: 230,
+        highSeverity: 15
+    },
+    ticketsByStatus: {
+        labels: ['Abierto', 'En Progreso', 'Cerrado', 'Pendiente'],
+        data: [75, 50, 150, 30],
+        colors: ['#FF6384', '#FFCE56', '#4BC0C0', '#9966FF']
+    },
+    ticketsBySeverity: {
+        labels: ['Crítica', 'Alta', 'Media', 'Baja'],
+        data: [10, 15, 100, 180],
+        colors: ['#FF0000', '#FF4500', '#FFD700', '#32CD32']
+    },
+    ticketsByCategory: {
+        labels: ['Malware', 'Phishing', 'Acceso No Autorizado', 'DDoS', 'Vulnerabilidad'],
+        data: [40, 60, 30, 20, 50],
+        colors: ['#36A2EB', '#FF6384', '#4BC0C0', '#FFCE56', '#9966FF']
+    },
+    weeklyEvolution: {
+        labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4', 'Semana 5', 'Semana 6', 'Semana 7'],
+        data: [10, 15, 25, 30, 20, 35, 40],
+        colors: '#36A2EB'
+    },
+    topRecurrent: [
+        { entity: '192.168.1.10', tickets: 25 },
+        { entity: 'user@example.com', tickets: 18 },
+        { entity: 'Servidor Web 01', tickets: 12 },
+        { entity: 'Firewall Principal', tickets: 10 },
+        { entity: 'Endpoint RH', tickets: 8 },
+        { entity: '10.0.0.5', tickets: 7 },
+        { entity: 'user2@example.com', tickets: 6 },
+        { entity: 'Servidor DB 03', tickets: 5 },
+        { entity: 'Router Borde', tickets: 4 },
+        { entity: 'Endpoint Ventas', tickets: 3 }
+    ]
+};
+
 const Dashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
 
@@ -42,48 +84,6 @@ const Dashboard = () => {
     const severityChartRef = useRef(null);
     const categoryChartRef = useRef(null);
     const weeklyChartRef = useRef(null);
-
-    // Datos simulados (reemplaza esto con tus llamadas a la API)
-    const simulatedData = {
-        kpis: {
-            totalTickets: 305,
-            openTickets: 75,
-            closedTickets: 230,
-            highSeverity: 15
-        },
-        ticketsByStatus: {
-            labels: ['Abierto', 'En Progreso', 'Cerrado', 'Pendiente'],
-            data: [75, 50, 150, 30],
-            colors: ['#FF6384', '#FFCE56', '#4BC0C0', '#9966FF']
-        },
-        ticketsBySeverity: {
-            labels: ['Crítica', 'Alta', 'Media', 'Baja'],
-            data: [10, 15, 100, 180],
-            colors: ['#FF0000', '#FF4500', '#FFD700', '#32CD32']
-        },
-        ticketsByCategory: {
-            labels: ['Malware', 'Phishing', 'Acceso No Autorizado', 'DDoS', 'Vulnerabilidad'],
-            data: [40, 60, 30, 20, 50],
-            colors: ['#36A2EB', '#FF6384', '#4BC0C0', '#FFCE56', '#9966FF']
-        },
-        weeklyEvolution: {
-            labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4', 'Semana 5', 'Semana 6', 'Semana 7'],
-            data: [10, 15, 25, 30, 20, 35, 40],
-            colors: '#36A2EB'
-        },
-        topRecurrent: [
-            { entity: '192.168.1.10', tickets: 25 },
-            { entity: 'user@example.com', tickets: 18 },
-            { entity: 'Servidor Web 01', tickets: 12 },
-            { entity: 'Firewall Principal', tickets: 10 },
-            { entity: 'Endpoint RH', tickets: 8 },
-            { entity: '10.0.0.5', tickets: 7 },
-            { entity: 'user2@example.com', tickets: 6 },
-            { entity: 'Servidor DB 03', tickets: 5 },
-            { entity: 'Router Borde', tickets: 4 },
-            { entity: 'Endpoint Ventas', tickets: 3 }
-        ]
-    };
 
     // Función para crear gráficos de dona
     const createDoughnutChart = (chartRef, labels, data, colors, total) => {

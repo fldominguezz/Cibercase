@@ -1,6 +1,6 @@
 // src/api.js
 
-const API_BASE_URL = 'https://10.1.9.244/api/v1';
+const API_BASE_URL = 'https://10.1.9.245/api/v1';
 
 export const apiFetch = async (endpoint, options = {}) => {
     const token = localStorage.getItem('token');
@@ -157,4 +157,37 @@ export const remediateTicket = async (ticketId) => {
     return apiFetch(`/tickets/${ticketId}/remediate`, {
         method: 'PUT',
     });
+};
+
+// RBAC API Functions
+export const getAllRoles = async () => {
+    return apiFetch('/admin/roles');
+};
+
+export const getAllPermissions = async () => {
+    return apiFetch('/admin/permissions');
+};
+
+export const createRole = async (roleData) => {
+    return apiFetch('/admin/roles', {
+        method: 'POST',
+        body: JSON.stringify(roleData),
+    });
+};
+
+export const updateRole = async (roleId, roleData) => {
+    return apiFetch(`/admin/roles/${roleId}`, {
+        method: 'PUT',
+        body: JSON.stringify(roleData),
+    });
+};
+
+export const deleteRole = async (roleId) => {
+    return apiFetch(`/admin/roles/${roleId}`, {
+        method: 'DELETE',
+    });
+};
+
+export const getFortiSIEMStatus = async () => {
+    return apiFetch('/admin/fortisiem-status');
 };

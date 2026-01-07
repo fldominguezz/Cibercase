@@ -24,39 +24,6 @@ from core.security import get_password_hash
 router = APIRouter()
 
 
-@router.post("/", response_model=UserSchema, status_code=status.HTTP_201_CREATED)
-def create_user(
-    *,
-    db: Session = Depends(deps.get_db),
-    user_in: UserCreate,
-    current_user: User = Depends(deps.get_current_active_admin),
-):
-    """
-    Create new user.
-    """
-    user = user_service.get_by_email(db, email=user_in.email)
-    if user:
-        raise HTTPException(
-            status_code=400,
-            detail="The user with this email already exists in the system.",
-        )
-    user = user_service.create_user(db, user_in=user_in)
-
-    # Create audit log
-    audit_log_repository.create(
-        db,
-        obj_in=AuditLogBase(
-            entidad="User",
-            entidad_id=user.id,
-            actor_id=current_user.id,
-            accion="Creación de Usuario",
-            detalle=json.dumps(
-                {"new_user_email": user.email, "new_user_role": user.role}
-            ),
-        ),
-    )
-
-    return user
 
 
 @router.get("/", response_model=List[UserSchema])

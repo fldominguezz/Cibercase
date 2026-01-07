@@ -5,15 +5,15 @@ import os
 # Set TESTING environment variable to True before importing app and db.session
 os.environ["TESTING"] = "True"
 
-from main import app
-from db.base import Base
-from db.session import (
+from main import app  # noqa: E402
+from db.base import Base  # noqa: E402
+from db.session import (  # noqa: E402
     SessionLocal,
     engine,
-)  # Import SessionLocal and engine from db.session
-from api.routers.fortisiem import get_db  # Correct import for get_db
-from db.models import User
-from core.security import get_password_hash
+)
+from api.routers.fortisiem import get_db  # noqa: E402
+from db.models import User  # noqa: E402
+from core.security import get_password_hash  # noqa: E402
 
 
 # Override the get_db dependency for testing
