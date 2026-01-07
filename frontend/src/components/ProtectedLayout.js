@@ -44,9 +44,9 @@ const ProtectedLayout = () => {
         <main className="container-fluid mt-4">
           <Outlet context={{ theme }} />
         </main>
-        <footer className="footer mt-auto py-3 bg-light">
+        <footer className="app-footer mt-auto py-3">
           <div className="container-fluid text-center">
-            <span className="text-muted">Versión: v2.0</span>
+            <span className="app-footer-text">Versión: v2.1</span>
           </div>
         </footer>
       </div>
