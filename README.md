@@ -1,5 +1,7 @@
 # Gestor Inteligente de Tickets para SOC (CiberCase)
 
+**Versión:** v2.0
+
 ![Dashboard Screenshot](https://i.imgur.com/7geTkY5.jpeg)
 
 Este proyecto es una solución de software avanzada, diseñada para optimizar y automatizar la gestión de incidentes de seguridad en un Centro de Operaciones de Seguridad (SOC). Centraliza, enriquece y gestiona de forma inteligente las alertas de seguridad, transformándolas en tickets accionables y contextualizados a través de una interfaz moderna y en tiempo real.
