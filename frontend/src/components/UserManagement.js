@@ -47,7 +47,7 @@ const UserManagement = () => {
         setError(null);
         setSuccessMessage('');
         try {
-            await apiFetch('/users/', {
+            await apiFetch('/admin/users/', {
                 method: 'POST',
                 body: JSON.stringify(formData),
             });
