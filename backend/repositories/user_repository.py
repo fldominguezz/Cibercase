@@ -30,5 +30,15 @@ class UserRepository(BaseRepository[User, UserCreate, UserUpdate]):
         )
 
 
+    def set_force_password_change(self, db: Session, *, user_id: int, force: bool) -> Optional[User]:
+        user = db.query(User).filter(User.id == user_id).first()
+        if user:
+            user.force_password_change = force
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        return user
+
+
 # Instantiate the repository
 user_repository = UserRepository(User)

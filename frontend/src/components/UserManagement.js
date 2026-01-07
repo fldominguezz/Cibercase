@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '../api';
 import EditUserModal from './EditUserModal'; // Import the modal
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPen, faKey, faTrash, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faUserPen, faKey, faTrash, faUserPlus, faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -31,7 +31,7 @@ const UserManagement = () => {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [apiFetch]);
 
     useEffect(() => {
         fetchUsers();
@@ -84,6 +84,23 @@ const UserManagement = () => {
                 setSuccessMessage('Contraseña restablecida exitosamente.');
             } catch (err) {
                 setError(err.message || 'Error al restablecer la contraseña.');
+            }
+        }
+    };
+
+    const handleForcePasswordChange = async (userId, currentForceStatus) => {
+        const newForceStatus = !currentForceStatus;
+        const confirmMessage = newForceStatus 
+            ? '¿Estás seguro de que deseas forzar el cambio de contraseña para este usuario en el próximo inicio de sesión?'
+            : '¿Estás seguro de que deseas desactivar el cambio de contraseña forzado para este usuario?';
+
+        if (window.confirm(confirmMessage)) {
+            try {
+                await apiFetch(`/admin/users/${userId}/force-password-change?force=${newForceStatus}`, { method: 'PUT' });
+                setSuccessMessage(`Cambio de contraseña forzado ${newForceStatus ? 'activado' : 'desactivado'} exitosamente.`);
+                fetchUsers(); // Refresh the user list
+            } catch (err) {
+                setError(err.message || 'Error al actualizar el estado de cambio de contraseña forzado.');
             }
         }
     };
@@ -262,6 +279,13 @@ const UserManagement = () => {
                                             </button>
                                             <button className="btn btn-sm btn-warning me-2" title="Reset Password" onClick={() => handleResetPassword(user.id)}>
                                                 <FontAwesomeIcon icon={faKey} />
+                                            </button>
+                                            <button 
+                                                className={`btn btn-sm me-2 ${user.force_password_change ? 'btn-danger' : 'btn-success'}`} 
+                                                title={user.force_password_change ? 'Desactivar Cambio de Contraseña Forzado' : 'Forzar Cambio de Contraseña en Próximo Inicio de Sesión'}
+                                                onClick={() => handleForcePasswordChange(user.id, user.force_password_change)}
+                                            >
+                                                <FontAwesomeIcon icon={faShieldHalved} />
                                             </button>
                                             <button className="btn btn-sm btn-danger" title="Delete" onClick={() => handleDelete(user.id)}>
                                                 <FontAwesomeIcon icon={faTrash} />

@@ -160,6 +160,34 @@ def admin_reset_user_password(
     )
     return {"new_password": new_password}
 
+@router.put("/users/{user_id}/force-password-change", response_model=User)
+def set_user_force_password_change(
+    user_id: int,
+    force: bool,
+    db: Session = Depends(deps.get_db),
+    admin_user: DBUser = Depends(deps.get_current_active_admin),
+):
+    """
+    Force a user to change their password on next login.
+    """
+    db_user = user_repository.set_force_password_change(db, user_id=user_id, force=force)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    action_detail = "Forzar cambio de contraseña" if force else "Desactivar cambio de contraseña forzado"
+    audit_log_repository.create(
+        db,
+        obj_in=AuditLogBase(
+            entidad="User",
+            entidad_id=user_id,
+            actor_id=admin_user.id,
+            accion=action_detail,
+            detalle=json.dumps({"target_user_email": db_user.email, "force_password_change": force}),
+        ),
+    )
+    return db_user
+
+
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def admin_delete_user(
     user_id: int,

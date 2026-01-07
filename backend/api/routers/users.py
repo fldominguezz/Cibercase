@@ -6,16 +6,17 @@ from fastapi import (
     UploadFile,
     File,
     Response,
+    Body, # Added Body
 )
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Union # Added Union
 import json
 import shutil
 from pathlib import Path
 
 from api import deps
 from db.models import User
-from schemas.user import User as UserSchema, UserCreate, UserPasswordChange
+from schemas.user import User as UserSchema, UserCreate, UserPasswordChange, UserForcedPasswordChange # Added UserForcedPasswordChange
 from schemas.audit import AuditLogBase
 from services.user_service import user_service
 from repositories.audit_log_repository import audit_log_repository
@@ -54,28 +55,49 @@ def get_birthdays_today(
 
 @router.post("/me/password", status_code=status.HTTP_204_NO_CONTENT)
 def change_current_user_password(
-    password_data: UserPasswordChange,
+    password_data: Union[UserPasswordChange, UserForcedPasswordChange] = Body(...), # Use Union and Body
     db: Session = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_active_user),
 ):
     """
     Change current user's password.
+    If force_password_change is true, old_password is not required and the flag is reset.
     """
-    # Authenticate user with their old password
-    user = user_service.authenticate(
-        db, email=current_user.email, password=password_data.old_password
-    )
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Incorrect old password.",
+    is_forced_change = current_user.force_password_change
+
+    if is_forced_change:
+        # If forced, old_password is not required
+        if not isinstance(password_data, UserForcedPasswordChange):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid request: Only new_password required for forced change."
+            )
+        new_password = password_data.new_password
+        current_user.force_password_change = False # Reset the flag
+    else:
+        # Regular password change, old_password is required
+        if not isinstance(password_data, UserPasswordChange):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid request: old_password and new_password required."
+            )
+        # Authenticate user with their old password
+        user = user_service.authenticate(
+            db, email=current_user.email, password=password_data.old_password
         )
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect old password.",
+            )
+        new_password = password_data.new_password
 
     # Hash the new password and update the user
-    hashed_password = get_password_hash(password_data.new_password)
+    hashed_password = get_password_hash(new_password)
     current_user.password_hash = hashed_password
     db.add(current_user)
     db.commit()
+    db.refresh(current_user) # Refresh to get the latest state
 
     # Create audit log for password change
     try:
@@ -86,7 +108,7 @@ def change_current_user_password(
                 entidad_id=current_user.id,
                 actor_id=current_user.id,
                 accion="Cambio de Contraseña",
-                detalle="El usuario ha cambiado su contraseña.",
+                detalle="El usuario ha cambiado su contraseña." + (" (Forzado)" if is_forced_change else ""),
             ),
         )
     except Exception as e:

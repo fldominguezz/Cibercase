@@ -10,6 +10,7 @@ import ProtectedLayout from './components/ProtectedLayout';
 import SessionWatcher from './components/SessionWatcher';
 import CreateTicketPage from './components/CreateTicketPage'; // Import CreateTicketPage
 import EMLScanner from './components/EMLScanner'; // Import EMLScanner
+import ForcePasswordChange from './components/ForcePasswordChange'; // Import ForcePasswordChange
 import { ModalProvider } from './context/ModalContext'; // Import ModalProvider
 
 // Lazy load components
@@ -29,6 +30,7 @@ function App() {
         <Suspense fallback={<div>Cargando...</div>}> {/* Add Suspense for lazy loaded components */}
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/force-password-change" element={<ForcePasswordChange />} /> {/* New route for forced password change */}
             <Route path="/" element={<ProtectedLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/tickets" element={<Tickets />} />

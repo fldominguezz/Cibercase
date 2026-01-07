@@ -54,6 +54,7 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     two_fa_secret = Column(String(255))
     is_active = Column(Boolean, default=True)
+    force_password_change = Column(Boolean, default=False) # New field
     creado_en = Column(DateTime, default=datetime.utcnow)
     avatar_url = Column(String(512), nullable=True)
     session_id = Column(String(36), nullable=True)

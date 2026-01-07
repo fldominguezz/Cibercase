@@ -24,12 +24,19 @@ export const apiFetch = async (endpoint, options = {}) => {
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
+    // Specific handling for 401 Unauthorized
     if (response.status === 401) {
-        // Session expired, clear token, set message, and redirect to login
-        localStorage.removeItem('token');
-        localStorage.setItem('sessionExpiredMessage', 'Su sesión ha expirado o se ha iniciado en otro dispositivo.');
-        window.location.href = '/login'; // Redirect to your login page
-        throw new Error('Session has expired. Please log in again.');
+        if (endpoint === '/auth/login') {
+            // If it's a login attempt, try to get specific error message
+            const errorData = await response.json().catch(() => ({ detail: 'Credenciales inválidas.' }));
+            throw new Error(errorData.detail || 'Credenciales inválidas.');
+        } else {
+            // For other endpoints, it means session expired
+            localStorage.removeItem('token');
+            localStorage.setItem('sessionExpiredMessage', 'Su sesión ha expirado o se ha iniciado en otro dispositivo.');
+            window.location.href = '/login'; // Redirect to your login page
+            throw new Error('Session has expired. Please log in again.');
+        }
     }
 
     if (!response.ok) {

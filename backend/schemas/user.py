@@ -22,6 +22,7 @@ class UserBase(BaseModel):
     email: EmailStr
     date_of_birth: date
     is_active: Optional[bool] = True
+    force_password_change: Optional[bool] = False # Added field
     avatar_url: Optional[str] = Field(None, max_length=255)
 
 
@@ -38,6 +39,7 @@ class UserUpdate(UserBase):
     role: Optional[UserRole] = None  # Use Enum for roles
     date_of_birth: Optional[date] = None
     is_active: Optional[bool] = None
+    force_password_change: Optional[bool] = None # Added field
     avatar_url: Optional[str] = Field(None, max_length=255)
     password: Optional[str] = Field(
         None, min_length=8, max_length=100
@@ -48,6 +50,7 @@ class UserInDBBase(UserBase):
     id: int
     creado_en: datetime
     date_of_birth: Optional[date]  # Make it optional for existing users in DB
+    force_password_change: bool # Added field
     role: Role  # Use the Role schema for output
 
     class Config:
@@ -86,4 +89,7 @@ class UserPasswordUpdate(BaseModel):
 
 class UserPasswordChange(BaseModel):
     old_password: str
+    new_password: str = Field(..., min_length=8, max_length=100)
+
+class UserForcedPasswordChange(BaseModel): # New schema for forced password change
     new_password: str = Field(..., min_length=8, max_length=100)
