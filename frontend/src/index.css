@@ -178,3 +178,17 @@ h1:first-child { margin-top: 0; }
     box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
 }
 
+/* Estilos para el footer de la aplicación */
+.app-footer {
+  background-color: var(--card-background-color); /* Usar el fondo de las tarjetas que se adapta */
+  box-shadow: var(--navbar-shadow); /* Reutilizar sombra para consistencia */
+  margin-top: 2rem !important; /* Asegurar espacio suficiente */
+  border-top: 1px solid var(--table-border-color); /* Pequeña línea divisoria */
+}
+
+.app-footer-text {
+  color: var(--secondary-text-color); /* Usar un color secundario que se adapte */
+  font-size: 0.85rem;
+}
+
+
