@@ -8,6 +8,7 @@ services:
       POSTGRES_DB: ticketing_db
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
+      TZ: America/Argentina/Buenos_Aires # Added timezone
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
@@ -25,7 +26,9 @@ services:
     build: ./backend
     restart: always
     env_file:
-      - ../.env
+      - ./.env # Corrected path
+    environment: # Added environment block for TZ
+      TZ: America/Argentina/Buenos_Aires
     volumes:
       - ./backend/uploads:/app/uploads
     cap_add:
