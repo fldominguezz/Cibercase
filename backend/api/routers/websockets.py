@@ -88,6 +88,12 @@ async def websocket_endpoint(
             logger.error("WebSocket: User not found for email '%s'.", email)
             raise JWTError("User not found")
 
+        logger.debug(
+            "WebSocket: Comparing session IDs for user '%s'. Token SID: %s, DB SID: %s",
+            email,
+            session_id,
+            user.session_id,
+        )
         if user.session_id != session_id:
             logger.error(
                 "WebSocket: Session ID mismatch for user '%s'. Token SID: %s, DB SID: %s",

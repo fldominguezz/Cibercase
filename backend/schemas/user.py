@@ -20,7 +20,7 @@ class UserBase(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=50)
     last_name: str = Field(..., min_length=1, max_length=50)
     email: EmailStr
-    date_of_birth: date
+    date_of_birth: Optional[date] = None # Made optional
     is_active: Optional[bool] = True
     force_password_change: Optional[bool] = False # Added field
     avatar_url: Optional[str] = Field(None, max_length=255)

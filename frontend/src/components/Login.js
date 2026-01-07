@@ -7,7 +7,7 @@ import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import './Login.css'; // Import the new CSS
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -67,7 +67,7 @@ const Login = () => {
     }
 
     try {
-      const data = await loginUser(email, password);
+      const data = await loginUser(usernameOrEmail, password);
       localStorage.setItem('token', data.access_token);
       navigate('/');
     } catch (err) {
@@ -99,15 +99,15 @@ const Login = () => {
             <h2 className="card-title text-center mb-4">Iniciar Sesión</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label htmlFor="emailInput" className="form-label">Email</label>
+                <label htmlFor="usernameOrEmailInput" className="form-label">Usuario o Email</label>
                 <input
-                  type="email"
-                  id="emailInput"
+                  type="text"
+                  id="usernameOrEmailInput"
                   className="form-control"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={usernameOrEmail}
+                  onChange={(e) => setUsernameOrEmail(e.target.value)}
                   required
-                  placeholder="tu@email.com"
+                  placeholder="usuario o tu@email.com"
                   autoComplete="username"
                 />
               </div>

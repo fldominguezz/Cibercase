@@ -20,6 +20,7 @@ const UserManagement = () => {
     });
     const [successMessage, setSuccessMessage] = useState('');
     const [editingUser, setEditingUser] = useState(null); // State for the user being edited
+    const [roles, setRoles] = useState([]); // State for available roles
 
     const fetchUsers = useCallback(async () => {
         try {
@@ -33,9 +34,23 @@ const UserManagement = () => {
         }
     }, [apiFetch]);
 
+    const fetchRoles = useCallback(async () => {
+        try {
+            const data = await apiFetch('/admin/roles');
+            setRoles(data);
+            if (data.length > 0) {
+                setFormData(prev => ({ ...prev, role: data[0].name })); // Set default role to the first available
+            }
+        } catch (err) {
+            setError(err.message || 'Error al cargar los roles.');
+        }
+    }, [apiFetch]);
+
+
     useEffect(() => {
         fetchUsers();
-    }, [fetchUsers]);
+        fetchRoles();
+    }, [fetchUsers, fetchRoles]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -46,10 +61,16 @@ const UserManagement = () => {
         e.preventDefault();
         setError(null);
         setSuccessMessage('');
+
+        const dataToSend = { ...formData };
+        if (dataToSend.date_of_birth === '') {
+            dataToSend.date_of_birth = null;
+        }
+
         try {
             await apiFetch('/admin/users/', {
                 method: 'POST',
-                body: JSON.stringify(formData),
+                body: JSON.stringify(dataToSend),
             });
             setSuccessMessage('Usuario creado exitosamente.');
             setIsFormVisible(false);
@@ -214,10 +235,9 @@ const UserManagement = () => {
                                         onChange={handleInputChange}
                                         required
                                     >
-                                        <option value="Analista">Analista</option>
-                                        <option value="Lider">Lider</option>
-                                        <option value="Auditor">Auditor</option>
-                                        <option value="Admin">Admin</option>
+                                        {roles.map(role => (
+                                            <option key={role.id} value={role.name}>{role.name}</option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>
@@ -231,7 +251,7 @@ const UserManagement = () => {
                                         name="date_of_birth"
                                         value={formData.date_of_birth}
                                         onChange={handleInputChange}
-                                        required
+                                        // removed 'required'
                                     />
                                 </div>
                             </div>
