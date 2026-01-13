@@ -1,6 +1,6 @@
 # Gestor Inteligente de Tickets para SOC (CiberCase)
 
-**Versión:** v2.1
+**Versión:** v2.3
 
 ![Dashboard Screenshot](https://i.imgur.com/7geTkY5.jpeg)
 
