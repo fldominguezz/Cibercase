@@ -17,6 +17,20 @@
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Responsive adjustments for pagination controls */
+@media (max-width: 768px) {
+    /* Target the div containing the page size select and pagination nav */
+    .filtered-tickets-view .card > .card-body > div.d-flex {
+        flex-direction: column; /* Stack elements vertically */
+        align-items: center !important; /* Center items */
+        gap: 15px; /* Add space between stacked elements */
+    }
+
+    .filtered-tickets-view .card > .card-body > div.d-flex > div:first-child {
+        margin-bottom: 0 !important; /* Remove bottom margin if any */
+    }
+}
+
 .ticket-manager .card {
     background: var(--card-background-color); /* Usar variable */
     border-radius: 8px;

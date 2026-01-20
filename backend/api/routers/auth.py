@@ -25,7 +25,7 @@ def login_for_access_token(
     OAuth2 compatible token login, get an access token for future requests.
     """
     user = user_service.authenticate(
-        db, email=form_data.username, password=form_data.password
+        db, username_or_email=form_data.username, password=form_data.password
     )
     if not user:
         raise HTTPException(

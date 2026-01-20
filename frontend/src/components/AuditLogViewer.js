@@ -80,43 +80,45 @@ const AuditLogViewer = () => {
         <div className="audit-log-viewer">
             <h1>Registro de Auditoría Global</h1>
             <div className="logs-list card">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Actor</th>
-                            <th>Entidad</th>
-                            <th>Entidad ID</th>
-                            <th>Acción</th>
-                            <th>Detalles</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {logs.map(log => (
-                            <tr key={log.id}>
-                                <td>{new Date(log.timestamp).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'medium', hour12: false })}</td>
-                                <td>{log.actor_name || 'Sistema'}</td>
-                                <td>{log.entidad}</td>
-                                <td>{log.entidad_id}</td>
-                                <td><span className="action-badge">{log.accion}</span></td>
-                                <td>
-                                    <RenderDetails detalle={log.detalle} />
-                                </td>
-                                <td>
-                                    {log.accion === 'Actualización de Ticket' && (
-                                        <button 
-                                            onClick={() => handleRevert(log.id)}
-                                            className="btn btn-warning btn-sm"
-                                        >
-                                            Revertir
-                                        </button>
-                                    )}
-                                </td>
+                <div className="table-responsive"> {/* Added wrapper div for responsiveness */}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Actor</th>
+                                <th>Entidad</th>
+                                <th>Entidad ID</th>
+                                <th>Acción</th>
+                                <th>Detalles</th>
+                                <th>Acciones</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {logs.map(log => (
+                                <tr key={log.id}>
+                                    <td>{new Date(log.timestamp).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'medium', hour12: false })}</td>
+                                    <td>{log.actor_name || 'Sistema'}</td>
+                                    <td>{log.entidad}</td>
+                                    <td>{log.entidad_id}</td>
+                                    <td><span className="action-badge">{log.accion}</span></td>
+                                    <td>
+                                        <RenderDetails detalle={log.detalle} />
+                                    </td>
+                                    <td>
+                                        {log.accion === 'Actualización de Ticket' && (
+                                            <button 
+                                                onClick={() => handleRevert(log.id)}
+                                                className="btn btn-warning btn-sm"
+                                            >
+                                                Revertir
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div> {/* End of wrapper div */}
             </div>
         </div>
     );

@@ -22,3 +22,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
 # Define Argentina timezone
 ARGENTINA_TIMEZONE = pytz.timezone("America/Argentina/Buenos_Aires")
+
+# Application version
+VERSION = os.getenv("VERSION", "unknown") # Default to "unknown" if not set

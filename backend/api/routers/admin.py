@@ -102,15 +102,29 @@ def create_user(
             detail="The user with this email already exists in the system.",
         )
     
-    create_data = user_in.dict()
-    role_name = create_data.pop("role")
-    role = db.query(DBRole).filter(DBRole.name == role_name).first()
+    # Get role object
+    role = db.query(DBRole).filter(DBRole.name == user_in.role.value).first()
     if not role:
-        raise HTTPException(status_code=404, detail=f"Role '{role_name}' not found")
-    create_data["role_id"] = role.id
+        raise HTTPException(status_code=404, detail=f"Role '{user_in.role.value}' not found")
+    
+    # Hash password
+    hashed_password = get_password_hash(user_in.password)
 
-    user = user_repository.create(db, obj_in=create_data)
+    # Prepare data for db.models.User
+    # Exclude password and role as they are handled separately
+    user_data = user_in.dict(exclude={"password", "role"})
+    
+    # Add password_hash and role_id
+    user_data["password_hash"] = hashed_password
+    user_data["role_id"] = role.id
 
+    # Create DBUser object directly and add to session
+    db_user_obj = DBUser(**user_data)
+    db.add(db_user_obj)
+    db.commit()
+    db.refresh(db_user_obj)
+
+    user = db_user_obj # Assign the created DBUser object to 'user' variable
     # Create audit log
     audit_log_repository.create(
         db,

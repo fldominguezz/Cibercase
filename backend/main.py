@@ -20,6 +20,7 @@ from api.routers import (
     websockets,
     eml,
     dashboard,
+    system,
 )
 from db.session import SessionLocal
 from db.base import Base
@@ -69,6 +70,7 @@ app.include_router(fortisiem.router, prefix="/api/v1", tags=["fortisiem"])
 app.include_router(websockets.router, prefix="/api/v1/ws", tags=["websockets"])
 app.include_router(eml.router, prefix="/api/v1/eml", tags=["eml"])
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["dashboard"])
+app.include_router(system.router, prefix="/api/v1/system", tags=["system"])
 
 
 def create_initial_data(db: SessionLocal):

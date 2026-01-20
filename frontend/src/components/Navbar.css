@@ -7,6 +7,19 @@
     position: absolute;
     top: 50px; /* Adjust as needed */
     right: 0;
+    z-index: 1050; /* Ensure it's above other elements, e.g., Bootstrap modals are 1040 */
+    min-width: 150px; /* Ensure it's not too narrow */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* Add some shadow */
+}
+
+@media (max-width: 768px) {
+    .dropdown-menu.show {
+        left: 10px; /* Small margin from left */
+        right: 10px; /* Small margin from right */
+        width: auto; /* Adjust width automatically */
+        max-width: calc(100% - 20px); /* Take almost full width */
+        top: 60px; /* Adjust top position for better visual placement on mobile */
+    }
 }
 
 /* Re-using modal styles from Tickets.css or defining them here if not global */

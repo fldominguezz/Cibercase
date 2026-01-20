@@ -30,8 +30,8 @@ def get_current_user(
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
-        session_id: str = payload.get("sid")
-        if email is None or session_id is None:
+        session_id: str = payload.get("sid") # Re-added this line
+        if email is None or session_id is None: # Reverted condition
             raise credentials_exception
         token_data = TokenData(email=email)
     except JWTError:
@@ -42,7 +42,7 @@ def get_current_user(
     if user is None:
         raise credentials_exception
 
-    if user.session_id != session_id:
+    if user.session_id != session_id: # Re-added this block
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Session has expired. Please log in again.",
